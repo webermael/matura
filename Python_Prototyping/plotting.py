@@ -10,7 +10,7 @@ from big_dijkstra import Dijkstra
 import time
 import random
 
-with open("graph.json", "r") as file:
+with open("matura\\python_prototyping\\graph.json", "r") as file:
     file_content = json.load(file)
 file.close()
 
@@ -89,8 +89,8 @@ while running:
         offset[1] -= dt * 500 / zoom
 
 
-    #for edge in edges.values():
-    #    edge.render(screen, center, zoom, offset, nodes, screen_size)
+    for edge in edges.values():
+        edge.render(screen, center, zoom, offset, nodes, screen_size)
 
     for car in cars:
         car.update(nodes, edges, waypoints, dt)
@@ -108,7 +108,8 @@ while running:
     if D != None:
         start = time.perf_counter()
         while D.active and time.perf_counter() - start < 0.01:
-            D.step()
+            pass
+            #D.step()
         D.render(screen, center, zoom, offset, nodes)
         if not D.active:
             D = Dijkstra(waypoints, ways, D.end, random.choice([id for id, wp in waypoints.items() if len(wp.edges) >= 2]))
@@ -123,7 +124,7 @@ while running:
 
     #for node in nodes.values():
     #    node.render(screen, center, zoom, offset, screen_size)
-    EM.render(nodes, edges, screen, center, zoom, offset, screen_size)
+    #EM.render(nodes, edges, screen, center, zoom, offset, screen_size)
 
 
     dt = clock.tick() / 1000

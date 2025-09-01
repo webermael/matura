@@ -1,7 +1,7 @@
 import osmnx as ox
 import json
 
-city = "Aarau, Switzerland"
+city = "Zürich, Switzerland"
 ox.settings.all_oneway=True
 G = ox.graph_from_place(city, network_type="drive", simplify=False)
 
@@ -78,33 +78,7 @@ for edge in data["edges"]:
         data["nodes"][edge["end_id"]]["edges"].append(edge["id"])
 
 
-"""
-active_nodes = []
-for id, node in data["nodes"].items():
-    if node["tags"]["intersection"]:
-        data["nodes"][id]["tags"]["start"] = True
-        active_nodes.append(id)
-        break
-
-explored_nodes = []
-
-while len(active_nodes) > 0:
-    print(active_nodes)
-    for node in active_nodes:
-        if data["nodes"][node]["tags"]["intersection"]:
-            data["nodes"][node]["tags"]["waypoint"] = True
-        if data["nodes"][node]["tags"]["dead_end"]:
-            data["nodes"][node]["tags"]["endpoint"] = True
-
-        for edge in data["nodes"][node]["all_edges"]:
-            adjacent_node = get_end(edge, node)
-            if adjacent_node not in active_nodes and adjacent_node not in explored_nodes:
-                active_nodes.append(adjacent_node)
-        explored_nodes.append(node)
-        active_nodes.remove(node)
-"""
-
 print(f"Nodes: {len(data['nodes'])} \nEdges: {len(data['edges'])}")
-with open("graph.json", "w") as f:
+with open("matura\\python_prototyping\\graph.json", "w") as f:
     json.dump(data, f, indent=2)
     f.close()
