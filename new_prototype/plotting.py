@@ -16,9 +16,6 @@ translation = [file_content["bounds"]["west"],
 nodes = file_content["nodes"]
 
 ways = file_content["ways"]
-colours = {
-    id: [(random.randint(10, 25) * 10, random.randint(10, 25) * 10, random.randint(10, 25) * 10) for i in range(len(ways[id]["nodes"]))] for id in ways
-}
 
 def normalize(point: list[float]) -> list[float]:
     """
@@ -61,11 +58,11 @@ while running:
         zoom -= dt * zoom
     
     for id, way in ways.items():
-        for segment in range(len(way["nodes"])):
-            if way["oneway"]:
-                pygame.draw.lines(screen, (255, 0, 0), False, [scale(normalize(nodes[node]["pos"]), center, zoom, offset) for node in way["nodes"][segment]], 2*int(way["lanes"]))
-            else:
-                pygame.draw.lines(screen, colours[id][segment], False, [scale(normalize(nodes[node]["pos"]), center, zoom, offset) for node in way["nodes"][segment]], 2*int(way["lanes"]))
+        line = []
+        for segment in way["nodes"]:
+            line += segment
+        #pygame.draw.lines(screen, (255 - min(255, 255 / 120 * way["speed"]), min(255, 255 / 120 * way["speed"]), 0), False, [scale(normalize(nodes[node]["pos"]), center, zoom, offset) for node in line], 2*int(way["lanes"]))
+        pygame.draw.lines(screen, (255, 255, 255), False, [scale(normalize(nodes[node]["pos"]), center, zoom, offset) for node in line], 2*int(way["lanes"]))
 
     if pygame.key.get_pressed()[pygame.K_a]:
         offset[0] += dt * 500 / zoom
