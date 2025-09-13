@@ -6,4 +6,11 @@ class Way:
         self.lanes:int = lanes
         self.speed:int = speed
         self.nodes:list[list[str]] = nodes
-        self.lengths:list[float]
+        self.lengths:list[float] = lengths
+    
+
+    def get_segment_end(self, segment):
+        return self.nodes[segment][-1]
+
+    def get_segment_weight(self, segment):
+        return self.lengths[segment] / self.speed
