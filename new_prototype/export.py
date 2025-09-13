@@ -44,28 +44,28 @@ for start, end, data in G.edges(data=True):
         "oneway": data.get("oneway", False),
         "speed": int(data.get("maxspeed", 50)),
         "nodes": [[str(start), str(end)]],
-        "lengths": [data["length"]],
+        "weights": [data["length"] / int(data.get("maxspeed", 50))],
         "unconnected": []
         }
     else:
         if export["ways"][data["osmid"]]["nodes"][0][0] == str(end):
             if export["nodes"][str(end)]["street_count"] > 2:
                 export["ways"][data["osmid"]]["nodes"].insert(0, [str(start), str(end)])
-                export["ways"][data["osmid"]]["lengths"].insert(0, data["length"])
+                export["ways"][data["osmid"]]["weights"].insert(0, data["length"] / int(data.get("maxspeed", 50)))
             
             else:
                 export["ways"][data["osmid"]]["nodes"][0].insert(0, str(start))
-                export["ways"][data["osmid"]]["lengths"][0] += data["length"]
+                export["ways"][data["osmid"]]["weights"][0] += data["length"] / int(data.get("maxspeed", 50))
 
         elif export["ways"][data["osmid"]]["nodes"][-1][-1] == str(start):
             if export["nodes"][str(start)]["street_count"] > 2:
                 export["ways"][data["osmid"]]["nodes"].append([str(start), str(end)])
-                export["ways"][data["osmid"]]["lengths"].append(data["length"])
+                export["ways"][data["osmid"]]["weights"].append(data["length"] / int(data.get("maxspeed", 50)))
             else:
                 export["ways"][data["osmid"]]["nodes"][-1].append(str(end))
-                export["ways"][data["osmid"]]["lengths"][-1] += data["length"]
+                export["ways"][data["osmid"]]["weights"][-1] += data["length"] / int(data.get("maxspeed", 50))
         else:
-            export["ways"][data["osmid"]]["unconnected"].append([str(start), str(end), data["length"]])
+            export["ways"][data["osmid"]]["unconnected"].append([str(start), str(end), data["length"] / int(data.get("maxspeed", 50))])
 
 for id, way in export["ways"].items():
     while way["unconnected"]:
@@ -74,19 +74,19 @@ for id, way in export["ways"].items():
             if export["ways"][id]["nodes"][0][0] == str(edge[1]):
                 if export["nodes"][str(edge[1])]["street_count"] > 2:
                     export["ways"][id]["nodes"].insert(0, [str(edge[0]), str(edge[1])])
-                    export["ways"][id]["lengths"].insert(0, edge[2])
+                    export["ways"][id]["weights"].insert(0, edge[2])
                 else:
                     export["ways"][id]["nodes"][0].insert(0, str(edge[0]))
-                    export["ways"][id]["lengths"][0] += edge[2]
+                    export["ways"][id]["weights"][0] += edge[2]
                 way["unconnected"].remove(edge)
 
             elif export["ways"][id]["nodes"][-1][-1] == str(edge[0]):
                 if export["nodes"][str(edge[0])]["street_count"] > 2:
                     export["ways"][id]["nodes"].append([str(edge[0]), str(edge[1])])
-                    export["ways"][id]["lengths"].append(edge[2])
+                    export["ways"][id]["weights"].append(edge[2])
                 else:
                     export["ways"][id]["nodes"][-1].append(str(edge[1]))
-                    export["ways"][id]["lengths"][-1] += edge[2]
+                    export["ways"][id]["weights"][-1] += edge[2]
                 way["unconnected"].remove(edge)
 
     export["ways"][id].pop("unconnected")
