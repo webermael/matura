@@ -1,7 +1,7 @@
 import osmnx as ox
 import json
 
-city = "Aarau, Switzerland"
+city = "Zürich, Switzerland"
 
 G = ox.graph_from_place(city, network_type="drive", simplify=False)
 
@@ -40,9 +40,9 @@ for start, end, data in G.edges(data=True):
         export["ways"][data["osmid"]] = {
         "id": data["osmid"],
         "reversed": data["reversed"],
-        "lanes": data.get("lanes", "2"),
+        "lanes": int(data.get("lanes", 2)),
         "oneway": data.get("oneway", False),
-        "speed": data.get("maxspeed", "undefined"),
+        "speed": int(data.get("maxspeed", 50)),
         "nodes": [[str(start), str(end)]],
         "lengths": [data["length"]],
         "unconnected": []
