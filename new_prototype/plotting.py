@@ -1,8 +1,28 @@
 import pygame
 import json
 import random
+import time
 from graph.way import Way
 from graph.node import Node
+from Astar import Astar
+
+
+def normalize(point: list[float]) -> list[float]:
+    """
+    Takes in coordinates from real world data and translates them to on screen data
+    """
+    return [
+        (point[0] - translation[0]) * transformation[0],
+        (point[1] - translation[1]) * transformation[1]
+    ]
+
+
+def scale(point: list[float], center: list[float], factor: float, offset: list[float]) -> list[float]:
+    return [
+        (point[0] - center[0]) * factor + center[0] + offset[0],
+        (point[1] - center[1]) * factor + center[1] + offset[1]
+    ]
+
 
 with open("matura\\new_prototype\\graph.json", "r") as file:
     file_content = json.load(file)
@@ -15,18 +35,10 @@ transformation = [(min(screen_size) / (file_content["bounds"]["east"] - file_con
 translation = [file_content["bounds"]["west"], 
             file_content["bounds"]["south"]]
 
-node_objects:dict[str,Node] = {id:Node(id, node["pos"], node["street_count"], node["ways"]) for id, node in file_content["nodes"].items()}
-way_objects:dict[str,Way] = {id:Way(id, way["lanes"], way["speed"], way["nodes"], way["lengths"]) for id, way in file_content["ways"].items()}
 
-def normalize(point: list[float]) -> list[float]:
-    """
-    Takes in coordinates from real world data and translates them to on screen data
-    """
-    return [
-        (point[0] - translation[0]) * transformation[0],
-        (point[1] - translation[1]) * transformation[1]
-    ]
-
+nodes:dict[str,Node] = {id:Node(id, node["pos"], node["street_count"], node["ways"]) for id, node in file_content["nodes"].items()}
+ways:dict[str,Way] = {id:Way(id, way["lanes"], way["speed"], way["nodes"], way["weights"]) for id, way in file_content["ways"].items()}
+a_star = Astar(random.choice(list(id for id, node in nodes.items() if node.ways != [])), random.choice(list(id for id, node in nodes.items() if node.ways == [] and node.street_count == 1)))
 
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
@@ -34,15 +46,11 @@ clock = pygame.time.Clock()
 zoom = 1
 offset = [480, 1080]
 
-def scale(point: list[float], center: list[float], factor: float, offset: list[float]) -> list[float]:
-    return [
-        (point[0] - center[0]) * factor + center[0] + offset[0],
-        (point[1] - center[1]) * factor + center[1] + offset[1]
-    ]
-
 
 dt = 0
 running = True
+starttime = time.perf_counter()
+ways_found = 0
 while running:
     center = [-offset[0] + screen_center[0], -offset[1] + screen_center[1]]
     transformation = [(min(screen_size) / (file_content["bounds"]["east"] - file_content["bounds"]["west"])), (min(screen_size) * (1 - 1 / (file_content["bounds"]["north"] - file_content["bounds"]["south"])))]
@@ -58,12 +66,28 @@ while running:
     if pygame.key.get_pressed()[pygame.K_DOWN]:
         zoom -= dt * zoom
     
-    for way in way_objects.values():
+    for way in ways.values():
         line = []
         for segment in way.nodes:
             line += segment
-        pygame.draw.lines(screen, (255, 255, 255), False, [scale(normalize(node_objects[node].pos), center, zoom, offset) for node in line], 2*int(way.lanes))
+        pygame.draw.lines(screen, (255, 255, 255), False, [scale(normalize(nodes[node].pos), center, zoom, offset) for node in line], 2*int(way.lanes))
 
+    start = time.perf_counter()
+    while a_star.active and time.perf_counter() - start < 1:
+        a_star.step(nodes, ways)
+        if not a_star.active:
+            if a_star.end in a_star.explored_nodes:
+                ways_found += 1
+            a_star.start = random.choice(list(id for id, node in nodes.items() if node.ways != []))
+            a_star.end = random.choice(list(id for id, node in nodes.items() if node.street_count > 2))
+            a_star.active_nodes = [a_star.start]
+            a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
+            a_star.time_searching = 0
+            a_star.active = True
+    running = False
+    print(f"\nTime elapsed: {round(time.perf_counter() - starttime, 3)}s\nTotal ways found: {ways_found}")
+
+    a_star.render(screen, scale, normalize, nodes, center, zoom, offset)
 
     if pygame.key.get_pressed()[pygame.K_a]:
         offset[0] += dt * 500 / zoom
