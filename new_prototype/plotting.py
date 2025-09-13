@@ -5,7 +5,7 @@ import time
 from graph.way import Way
 from graph.node import Node
 from Astar import Astar
-
+from car import Car
 
 def normalize(point: list[float]) -> list[float]:
     """
@@ -36,16 +36,35 @@ translation = [file_content["bounds"]["west"],
             file_content["bounds"]["south"]]
 
 
-nodes:dict[str,Node] = {id:Node(id, node["pos"], node["street_count"], node["ways"]) for id, node in file_content["nodes"].items()}
+nodes:dict[str,Node] = {id:Node(id, normalize(node["pos"]), node["street_count"], node["ways"]) for id, node in file_content["nodes"].items()}
 ways:dict[str,Way] = {id:Way(id, way["lanes"], way["speed"], way["nodes"], way["weights"]) for id, way in file_content["ways"].items()}
-a_star = Astar(random.choice(list(id for id, node in nodes.items() if node.ways != [])), random.choice(list(id for id, node in nodes.items() if node.ways == [] and node.street_count == 1)))
+a_star = Astar(random.choice(list(id for id, node in nodes.items() if node.ways != [])), random.choice(list(id for id, node in nodes.items() if node.street_count > 2)))
+
+cars = []
+for i in range(6000):
+    a_star.active = True
+    a_star.start = random.choice(list(id for id, node in nodes.items() if node.ways != []))
+    a_star.end = random.choice(list(id for id, node in nodes.items() if node.street_count > 2))
+    a_star.active_nodes = [a_star.start]
+    a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
+    a_star.time_searching = 0
+    while a_star.active:
+        a_star.step(nodes, ways)
+        if not a_star.active and not a_star.end in a_star.explored_nodes or (a_star.end in a_star.explored_nodes and len(a_star.explored_nodes[a_star.end]["path"]) < 2):
+            a_star.active = True
+            a_star.start = random.choice(list(id for id, node in nodes.items() if node.ways != []))
+            a_star.end = random.choice(list(id for id, node in nodes.items() if node.street_count > 2))
+            a_star.active_nodes = [a_star.start]
+            a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
+            a_star.time_searching = 0
+    cars.append(Car(nodes, ways, a_star.explored_nodes[a_star.end]["path"]))
+
 
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
 clock = pygame.time.Clock()
 zoom = 1
 offset = [480, 1080]
-
 
 dt = 0
 running = True
@@ -70,24 +89,13 @@ while running:
         line = []
         for segment in way.nodes:
             line += segment
-        pygame.draw.lines(screen, (255, 255, 255), False, [scale(normalize(nodes[node].pos), center, zoom, offset) for node in line], 2*int(way.lanes))
+        pygame.draw.lines(screen, (255, 255, 255), False, [scale(nodes[node].pos, center, zoom, offset) for node in line], 2*int(way.lanes))
 
-    start = time.perf_counter()
-    while a_star.active and time.perf_counter() - start < 1:
-        a_star.step(nodes, ways)
-        if not a_star.active:
-            if a_star.end in a_star.explored_nodes:
-                ways_found += 1
-            a_star.start = random.choice(list(id for id, node in nodes.items() if node.ways != []))
-            a_star.end = random.choice(list(id for id, node in nodes.items() if node.street_count > 2))
-            a_star.active_nodes = [a_star.start]
-            a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
-            a_star.time_searching = 0
-            a_star.active = True
-    running = False
-    print(f"\nTime elapsed: {round(time.perf_counter() - starttime, 3)}s\nTotal ways found: {ways_found}")
-
-    a_star.render(screen, scale, normalize, nodes, center, zoom, offset)
+    for c in cars[:]:
+        c.update(nodes, ways, dt)
+        c.render(screen, scale, center, zoom, offset)
+        if not c.active:
+            cars.remove(c)
 
     if pygame.key.get_pressed()[pygame.K_a]:
         offset[0] += dt * 500 / zoom
