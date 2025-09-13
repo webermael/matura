@@ -1,6 +1,8 @@
 import pygame
 import json
 import random
+from graph.way import Way
+from graph.node import Node
 
 with open("matura\\new_prototype\\graph.json", "r") as file:
     file_content = json.load(file)
@@ -13,9 +15,8 @@ transformation = [(min(screen_size) / (file_content["bounds"]["east"] - file_con
 translation = [file_content["bounds"]["west"], 
             file_content["bounds"]["south"]]
 
-nodes = file_content["nodes"]
-
-ways = file_content["ways"]
+node_objects:dict[str,Node] = {id:Node(id, node["pos"], node["street_count"], node["ways"]) for id, node in file_content["nodes"].items()}
+way_objects:dict[str,Way] = {id:Way(id, way["lanes"], way["speed"], way["nodes"], way["lengths"]) for id, way in file_content["ways"].items()}
 
 def normalize(point: list[float]) -> list[float]:
     """
@@ -57,12 +58,12 @@ while running:
     if pygame.key.get_pressed()[pygame.K_DOWN]:
         zoom -= dt * zoom
     
-    for id, way in ways.items():
+    for way in way_objects.values():
         line = []
-        for segment in way["nodes"]:
+        for segment in way.nodes:
             line += segment
-        #pygame.draw.lines(screen, (255 - min(255, 255 / 120 * way["speed"]), min(255, 255 / 120 * way["speed"]), 0), False, [scale(normalize(nodes[node]["pos"]), center, zoom, offset) for node in line], 2*int(way["lanes"]))
-        pygame.draw.lines(screen, (255, 255, 255), False, [scale(normalize(nodes[node]["pos"]), center, zoom, offset) for node in line], 2*int(way["lanes"]))
+        pygame.draw.lines(screen, (255, 255, 255), False, [scale(normalize(node_objects[node].pos), center, zoom, offset) for node in line], 2*int(way.lanes))
+
 
     if pygame.key.get_pressed()[pygame.K_a]:
         offset[0] += dt * 500 / zoom
