@@ -42,4 +42,4 @@ class Car:
                 budget = 0
     
     def render(self, screen:pygame.Surface, scale, center, zoom, offset):
-        pygame.draw.circle(screen, (255, 0, 255), scale(self.pos, center, zoom, offset), 5)
+        pygame.draw.circle(screen, (255, 0, 255), scale(self.pos, center, zoom, offset), math.sqrt(zoom) * 3)
