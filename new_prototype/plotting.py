@@ -23,6 +23,20 @@ def scale(point: list[float], center: list[float], factor: float, offset: list[f
         (point[1] - center[1]) * factor + center[1] + offset[1]
     ]
 
+def normalize_score(data:dict[Node,int]) -> dict[Node,int]:
+    total = 0
+    for value in data.values():
+        total += value
+    return {key: value / total for key, value in data.items()}
+
+def weighted_choice(data:dict[Node,float]) -> Node:
+    counter = random.random()
+    for key, value in data.items():
+        counter -= value
+        if counter <= 0:
+            return key
+    
+
 
 with open("matura\\new_prototype\\graph.json", "r") as file:
     file_content = json.load(file)
@@ -37,45 +51,46 @@ translation = [file_content["bounds"]["west"],
 
 
 nodes:dict[str,Node] = {id:Node(id, normalize(node["pos"]), node["street_count"], node["ways"], node["ways_in"]) for id, node in file_content["nodes"].items()}
-ways:dict[str,Way] = {id:Way(id, way["oneway"], way["lanes"], way["speed"], way["nodes"], way["weights"]) for id, way in file_content["ways"].items()}
+ways:dict[str,Way] = {id:Way(id, way["oneway"], way["lanes"], way["turns"], way["speed"], way["nodes"], way["weights"]) for id, way in file_content["ways"].items()}
 a_star = Astar(random.choice(list(id for id, node in nodes.items() if node.ways != [])), random.choice(list(id for id, node in nodes.items() if node.street_count > 2)))
-start_nodes = [node for node in nodes.values() if node.street_count == 2 and (len(node.ways_in) == 0 and (len(node.ways) == 1) or len(node.ways_in) == 1 and len(node.ways) == 1 and not ways[node.ways[0][0]].oneway)]
-end_nodes = [node for node in nodes.values() if node.street_count == 2 and (len(node.ways) == 0 and (len(node.ways_in) == 1) or len(node.ways) == 1 and len(node.ways_in) == 1 and not ways[node.ways_in[0][0]].oneway)]
-dead_ends = [node for node in nodes.values() if node.street_count == 1]
+start_nodes = {node:ways[node.ways[0][0]].speed ** 2 for node in nodes.values() if node.street_count == 2 and len(node.ways) == 1 and (len(node.ways_in) == 0 or (len(node.ways_in) == 1 and not ways[node.ways[0][0]].oneway))}
+end_nodes = {node:ways[node.ways_in[0][0]].speed ** 2 for node in nodes.values() if node.street_count == 2 and len(node.ways_in) == 1 and (len(node.ways) == 0 or (len(node.ways) == 1 and not ways[node.ways_in[0][0]].oneway))}
+
+dead_ends = [node for node in nodes.values() if node.street_count == 1 and len(node.ways_in) != 0]
+start_nodes = normalize_score(start_nodes)
+end_nodes = normalize_score(end_nodes)
 
 found_paths = {}
 cars = []
-for i in range(100):
+for i in range(500):
     already_found = False
-    a_star.start = random.choice([node.id for node in start_nodes])
-    a_star.end = random.choice([node.id for node in end_nodes])
+    a_star.start = weighted_choice(start_nodes).id
+    a_star.end = weighted_choice(end_nodes).id
     if (a_star.start, a_star.end) in found_paths:
         already_found = True
-    if random.random() < 0.4 and found_paths:
+    if random.random() < 0.2 and found_paths:
         already_found = True
         key = random.choice(list(found_paths.keys()))
         a_star.start, a_star.end = key
-
     if not already_found:
         a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
         a_star.active_nodes = [a_star.start]
         a_star.time_searching = 0
         a_star.active = True
         while a_star.active and not already_found:
+            
             a_star.step(nodes, ways)
             if not a_star.active and not a_star.end in a_star.explored_nodes or (a_star.end in a_star.explored_nodes and len(a_star.explored_nodes[a_star.end]["path"]) < 2):
                 a_star.active = True
-                a_star.start = random.choice([node.id for node in start_nodes])
-                a_star.end = random.choice([node.id for node in end_nodes])
+                a_star.start = weighted_choice(start_nodes).id
+                a_star.end = weighted_choice(end_nodes).id
                 a_star.active_nodes = [a_star.start]
                 a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
                 a_star.time_searching = 0
         found_paths[(a_star.start, a_star.end)] = a_star.explored_nodes[a_star.end]["path"]
-    
     cars.append(Car(nodes, ways, found_paths[a_star.start, a_star.end]))
     print(i, already_found)
 print(len(found_paths))
-
 
 a_star.active = True
 a_star.start = random.choice([node.id for node in start_nodes])
@@ -125,8 +140,22 @@ while running:
         for segment in way.nodes:
             line += segment
         pygame.draw.lines(screen, (255, 255, 255), False, [scale(nodes[node].pos, center, zoom, offset) for node in line], 3)# int(2 * way.lanes * zoom))
-    
+        #if way.id == "326162532r":
+        #    print(way.cars)
+        #    pygame.draw.lines(screen, (255, 0, 0), False, [scale(nodes[node].pos, center, zoom, offset) for node in line], 3)
+
     """
+    for way in ways.values():
+        line = []
+        for segment in way.nodes:
+            line += segment
+        if way.turns:
+            color = [255, 0, 0]
+            pygame.draw.lines(screen, color, False, [scale(nodes[node].pos, center, zoom, offset) for node in line], 3)# int(2 * way.lanes * zoom))
+
+    a_star.step(nodes, ways)
+    a_star.render(screen, scale, nodes, center, zoom, offset, ways)
+    
     for node in nodes.values():
         if node in start_nodes and node in end_nodes:
             pygame.draw.circle(screen, (255, 255, 0), scale(node.pos, center, zoom, offset), 5)
@@ -134,11 +163,6 @@ while running:
             pygame.draw.circle(screen, (255, 0, 0), scale(node.pos, center, zoom, offset), 5)
         elif node in end_nodes:
             pygame.draw.circle(screen, (0, 255, 0), scale(node.pos, center, zoom, offset), 5)
-    
-    start = time.perf_counter()
-    while a_star.active and time.perf_counter() - start < 0.01:
-        a_star.step(nodes, ways)
-    a_star.render(screen, scale, nodes, center, zoom, offset, ways)
     """
     for c in cars[:]:
         c.update(nodes, ways, dt)
