@@ -1,7 +1,8 @@
 import pygame
 import json
-from Astar import Astar
+import random
 
+from Astar import Astar
 from graph.way import Way
 from graph.node import Node
 
@@ -31,10 +32,17 @@ def from_screen_space(position:list[float]) -> list[float]:
     ]
 
 def normalize_node_scores(node_dict:dict[Node,int]) -> dict[Node,float]:
-    total = 0
+    total:int = 0
     for score in node_dict.values():
         total += score
     return {node: score / total for node, score in node_dict.items()}
+
+def weighted_choice(weighted_dict:dict[Node,float]) -> int:
+    start:float = random.random()
+    for node, weight in weighted_dict.items():
+        start -= weight
+        if start <= 0:
+            return node.id
 
 nodes:dict[str,Node] = {id:Node(id, node["pos"], to_screen_space(node["pos"]), node["street_count"], node["ways"], node["ways_in"]) for id, node in file_content["nodes"].items()}
 ways:dict[str,Way] = {id:Way(id, way["oneway"], way["lanes"], way["turns"], way["speed"], way["nodes"], way["weights"]) for id, way in file_content["ways"].items()}
@@ -72,7 +80,7 @@ while running:
     # drawing visible ways
     for way in ways.values():
         if way.is_visible:
-            line = []
+            line:list[int] = []
             for segment in way.nodes:
                 line += segment
             pygame.draw.lines(screen, (255, 255, 255), False, [nodes[node].display_pos for node in line], 3)
