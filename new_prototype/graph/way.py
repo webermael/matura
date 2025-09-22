@@ -1,12 +1,14 @@
 
 # or edge idk
 class Way:
-    def __init__(self, id:int, oneway:bool, lanes:int, speed:int, nodes:list[list[str]], weights:list[float]):
+    def __init__(self, id:int, oneway:bool, lanes:int, turns:str, speed:int, nodes:list[list[str]], weights:list[float]):
         self.id:int = id
         self.oneway:bool = oneway
         self.lanes:int = lanes
+        self.turns:str = turns
         self.speed:int = speed
         self.nodes:list[list[str]] = nodes
+        self.cars:list[list] = [[] for i in nodes]
         self.weights:list[float] = weights
     
 
