@@ -1,8 +1,14 @@
 import osmnx as ox
 import json
 import re
+import math
 
-city = "Aargau, Switzerland"
+city = "Aarau, Switzerland"
+
+ox.settings.useful_tags_way += [
+    "lanes:forward", "lanes:backward",
+    "turn:lanes", "turn:lanes:forward", "turn:lanes:backward"
+]
 
 G = ox.graph_from_place(city, network_type="drive", simplify=False)
 
@@ -38,13 +44,13 @@ for start, end, data in G.edges(data=True):
     data["osmid"] = str(data["osmid"])
     if data["reversed"]:
         data["osmid"] += "r"
-    print(data.get("maxspeed", "50"))
-    speed = int(''.join(re.findall(r'\d+', str(data.get("maxspeed", "50").replace("rural", "80").replace("urban", "50").replace("signals", "50")))))
+    speed = int(''.join(re.findall(r'\d+', str(data.get("maxspeed", "50").replace("rural", "80").replace("urban", "50").replace("signals", "50").replace("walk", "10")))))
     if data["osmid"] not in export["ways"]:
         export["ways"][data["osmid"]] = {
         "id": data["osmid"],
         "reversed": data["reversed"],
         "lanes": int(data.get("lanes", 2)),
+        "turns": data.get("turn:lanes"),
         "oneway": data.get("oneway", False),
         "speed": speed,
         "nodes": [[str(start), str(end)]],
@@ -102,6 +108,11 @@ for id, way in export["ways"].items():
     for segment in range(len(way["nodes"])):
         export["nodes"][way["nodes"][segment][0]]["ways"].append([id, segment])
         export["nodes"][way["nodes"][segment][-1]]["ways_in"].append([id, segment])
+
+
+#for way in export["ways"].values():
+#    if way["turns"]:
+#        print(way["turns"], way["id"])
 
 with open("matura\\new_prototype\\graph.json", "w") as f:
     json.dump(export, f, indent=2)
