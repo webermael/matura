@@ -50,6 +50,10 @@ ways:dict[str,Way] = {id:Way(id, way["oneway"], way["lanes"], way["turns"], way[
 start_nodes:dict[Node,float] = normalize_node_scores({node:ways[node.ways[0][0]].speed ** 2 for node in nodes.values() if node.street_count == 2 and len(node.ways) == 1 and (len(node.ways_in) == 0 or (len(node.ways_in) == 1 and not ways[node.ways[0][0]].oneway))})
 end_nodes:dict[Node,float] = normalize_node_scores({node:ways[node.ways_in[0][0]].speed ** 2 for node in nodes.values() if node.street_count == 2 and len(node.ways_in) == 1 and (len(node.ways) == 0 or (len(node.ways) == 1 and not ways[node.ways_in[0][0]].oneway))})
 
+astar = Astar(
+    weighted_choice(start_nodes),
+    weighted_choice(end_nodes)
+)
 
 pygame.init() 
 screen:pygame.Surface = pygame.display.set_mode(screen_size)
@@ -83,7 +87,7 @@ while running:
             line:list[int] = []
             for segment in way.nodes:
                 line += segment
-            pygame.draw.lines(screen, (255, 255, 255), False, [nodes[node].display_pos for node in line], 3)
+            pygame.draw.lines(screen, (155, 155, 155), False, [nodes[node].display_pos for node in line], 3)
 
     # selection/zoom handling + drawing
     if pygame.mouse.get_pressed()[0]:
@@ -119,6 +123,13 @@ while running:
                     node.test_visible(screen_size)
                 for way in ways.values():
                     way.test_visible(nodes)
+
+
+    # A* testing
+    astar.step(nodes, ways)
+    astar.step(nodes, ways)
+    astar.step(nodes, ways)
+    astar.render(screen, nodes, ways)
 
     dt = clock.tick() / 1000
     pygame.display.flip()
