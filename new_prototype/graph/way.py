@@ -13,11 +13,11 @@ class Way:
         self.is_visible:bool = True
     
 
-    def test_visible(self, screen_size:list[int], nodes:dict[str,Node]):
+    def test_visible(self, nodes:dict[str,Node]):
         self.is_visible = False
         for segment in self.nodes:
             for node in segment:
-                if 0 < nodes[node].display_pos[0] < screen_size[0] and 0 < nodes[node].display_pos[1] < screen_size[1]:
+                if nodes[node].is_visible:
                     self.is_visible = True
                     break
 
