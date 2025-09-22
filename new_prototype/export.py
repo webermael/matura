@@ -1,9 +1,9 @@
 import osmnx as ox
 import json
 import re
-import math
+import pyproj
 
-city = "Aarau, Switzerland"
+city = "Zürich, Switzerland"
 
 ox.settings.useful_tags_way += [
     "lanes:forward", "lanes:backward",
@@ -11,6 +11,7 @@ ox.settings.useful_tags_way += [
 ]
 
 G = ox.graph_from_place(city, network_type="drive", simplify=False)
+proj = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
 
 lats = [data["y"] for _, data in G.nodes(data=True)]
 lons = [data["x"] for _, data in G.nodes(data=True)]
@@ -18,20 +19,22 @@ lons = [data["x"] for _, data in G.nodes(data=True)]
 north, south = max(lats), min(lats)
 east, west = max(lons), min(lons)
 
-
+x_min, y_min = proj.transform(west, south)
+x_max, y_max = proj.transform(east, north)
 
 export = {}
 export["bounds"] = {
-    "north": north,
-    "east": east,
-    "south": south,
-    "west": west
+    "north": y_max,
+    "east": x_max,
+    "south": y_min,
+    "west": x_min
 }
 
 export["nodes"] = {}
 for id, data in G.nodes(data=True):
+    x, y = proj.transform(data["x"], data["y"])
     export["nodes"][str(id)] = {
-        "pos": (data["x"], data["y"]),
+        "pos": (x, y),
         "street_count": data["street_count"],
         "ways": [],
         "ways_in": []
