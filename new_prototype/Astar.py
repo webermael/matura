@@ -14,14 +14,31 @@ class Astar:
         self.active_nodes:list[int] = [self.start]
         self.time_searching = 0
         self.active:bool = True
+
     
+    def reset(self, start_id:int, end_id:int):
+        self.start:int = start_id
+        self.end:int = end_id
+        self.explored_nodes:dict[int,dict[str,float|list[str]]] = {self.start: {"weight": 0, "path": []}}
+        self.active_nodes:list[int] = [self.start]
+        self.time_searching = 0
+        self.active:bool = True
+
+
+    def dot_product(self, vector1:list[float], vector2:list[float]):
+        return (vector1[0] * vector2[0] + vector1[1] * vector2[1]) / (math.sqrt(vector1[0] ** 2 + vector1[1] ** 2) * math.sqrt(vector2[0] ** 2 + vector2[1] ** 2))
+
+
     def step(self, nodes:dict[int,Node], ways:dict[str,Way]):
         start = time.perf_counter()
+        # don't run if not active
         if not self.active:
             return
+        # check if still active
         if self.end in self.explored_nodes or self.active_nodes == []:# or self.time_searching > 0.3:
             self.active = False
             return
+        # get node with best weight
         min_dist = math.inf
         node = None
         for node_check in self.active_nodes[:]:
@@ -31,21 +48,23 @@ class Astar:
                 node = node_check
         if not node:
             return
+        # check ways connected to selected node
         for way in nodes[node].ways:
-            if self.explored_nodes[node]["path"] != []:
+            # check if turn is extremely sharp
+            if self.explored_nodes[node]["path"] != [] and ways[self.explored_nodes[node]["path"][-1][0]].turns == None:
                 old_way = self.explored_nodes[node]["path"][-1]
                 old_node = nodes[ways[old_way[0]].nodes[old_way[1]][-2]].pos
                 first_node = nodes[ways[way[0]].nodes[way[1]][1]].pos
                 forward = [first_node[0] - nodes[node].pos[0], first_node[1] - nodes[node].pos[1]]
                 backward = [nodes[node].pos[0] - old_node[0], nodes[node].pos[1] - old_node[1]]
-                dot_product = forward[0] * backward[0] + forward[1] * backward[1]
-                dot_product /= (math.sqrt(backward[0] ** 2 + backward[1] ** 2) * math.sqrt(forward[0] ** 2 + forward[1] ** 2))
+                dot_product = self.dot_product(forward, backward)
+
             else:
-                dot_product = 0
+                dot_product = 1
             if dot_product > -0.5:
                 new_node = ways[way[0]].nodes[way[1]][-1]
                 if new_node not in self.explored_nodes or (new_node in self.explored_nodes and self.explored_nodes[node]["weight"] + ways[way[0]].weights[way[1]] < self.explored_nodes[new_node]["weight"]):
-
+                    # (over)write path and weight for the node (if it's valid)
                     self.active_nodes.append(new_node)
                     self.explored_nodes[new_node] = {"weight":self.explored_nodes[node]["weight"] + ways[way[0]].weights[way[1]],
                                                     "path":self.explored_nodes[node]["path"] + [way]}
@@ -57,6 +76,7 @@ class Astar:
         for node in self.explored_nodes:
             pygame.draw.circle(screen, (250, 150, 0), nodes[node].display_pos, 5)
         for node in self.active_nodes:
+            #[pygame.draw.lines(screen, (0, 0, 255), False, [nodes[node].display_pos for node in ways[way[0]].nodes[way[1]]], 5) for way in self.explored_nodes[node]["path"]] + [nodes[self.start].display_pos]
             pygame.draw.circle(screen, (180, 0, 200), nodes[node].display_pos, 5)
         pygame.draw.circle(screen, (255, 0, 0), nodes[self.start].display_pos, 5)
         pygame.draw.circle(screen, (0, 255, 0), nodes[self.end].display_pos, 5)
