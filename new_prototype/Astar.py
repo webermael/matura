@@ -25,6 +25,23 @@ class Astar:
         self.active:bool = True
 
 
+    def get_dot_product(self, node:Node, way:list[str|int], nodes:dict[str,Node], ways:dict[str,Way], direction:str):
+        old_way = self.explored_nodes[node]["path"][-1]
+        old_node = nodes[ways[old_way[0]].nodes[old_way[1]][-2]].pos
+        first_node = nodes[ways[way[0]].nodes[way[1]][1]].pos
+        forward = [first_node[0] - nodes[node].pos[0], first_node[1] - nodes[node].pos[1]]
+        backward = self.get_target_vector(direction, [nodes[node].pos[0] - old_node[0], nodes[node].pos[1] - old_node[1]])
+        return self.dot_product(forward, backward)
+
+    def get_target_vector(self, direction:str, vector:list[float]):
+        match direction:
+            case "through":
+                return vector
+            case "left":
+                return [-vector[1], vector[0]]
+            case "right":
+                return [vector[1], -vector[0]]
+
     def dot_product(self, vector1:list[float], vector2:list[float]):
         return (vector1[0] * vector2[0] + vector1[1] * vector2[1]) / (math.sqrt(vector1[0] ** 2 + vector1[1] ** 2) * math.sqrt(vector2[0] ** 2 + vector2[1] ** 2))
 
@@ -51,17 +68,12 @@ class Astar:
         # check ways connected to selected node
         for way in nodes[node].ways:
             # check if turn is extremely sharp
-            if self.explored_nodes[node]["path"] != [] and ways[self.explored_nodes[node]["path"][-1][0]].turns == None:
-                old_way = self.explored_nodes[node]["path"][-1]
-                old_node = nodes[ways[old_way[0]].nodes[old_way[1]][-2]].pos
-                first_node = nodes[ways[way[0]].nodes[way[1]][1]].pos
-                forward = [first_node[0] - nodes[node].pos[0], first_node[1] - nodes[node].pos[1]]
-                backward = [nodes[node].pos[0] - old_node[0], nodes[node].pos[1] - old_node[1]]
-                dot_product = self.dot_product(forward, backward)
-
-            else:
-                dot_product = 1
-            if dot_product > -0.5:
+            dot_product = 1
+            if self.explored_nodes[node]["path"] != [] and ways[self.explored_nodes[node]["path"][-1][0]].turns[self.explored_nodes[node]["path"][-1][1]] != []:
+                dot_product = -1
+                for direction in ways[self.explored_nodes[node]["path"][-1][0]].turns[self.explored_nodes[node]["path"][-1][1]]:
+                    dot_product = max(dot_product, self.get_dot_product(node, way, nodes, ways, direction))
+            if dot_product > 0.5:
                 new_node = ways[way[0]].nodes[way[1]][-1]
                 if new_node not in self.explored_nodes or (new_node in self.explored_nodes and self.explored_nodes[node]["weight"] + ways[way[0]].weights[way[1]] < self.explored_nodes[new_node]["weight"]):
                     # (over)write path and weight for the node (if it's valid)
