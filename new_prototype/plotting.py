@@ -50,7 +50,7 @@ translation = [file_content["bounds"]["west"],
             file_content["bounds"]["south"]]
 
 
-nodes:dict[str,Node] = {id:Node(id, normalize(node["pos"]), node["street_count"], node["ways"], node["ways_in"]) for id, node in file_content["nodes"].items()}
+nodes:dict[str,Node] = {id:Node(id, normalize(node["pos"]), node["pos"], node["street_count"], node["ways"], node["ways_in"]) for id, node in file_content["nodes"].items()}
 ways:dict[str,Way] = {id:Way(id, way["oneway"], way["lanes"], way["turns"], way["speed"], way["nodes"], way["weights"]) for id, way in file_content["ways"].items()}
 a_star = Astar(random.choice(list(id for id, node in nodes.items() if node.ways != [])), random.choice(list(id for id, node in nodes.items() if node.street_count > 2)))
 start_nodes = {node:ways[node.ways[0][0]].speed ** 2 for node in nodes.values() if node.street_count == 2 and len(node.ways) == 1 and (len(node.ways_in) == 0 or (len(node.ways_in) == 1 and not ways[node.ways[0][0]].oneway))}
