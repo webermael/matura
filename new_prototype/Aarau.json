@@ -64961,7 +64961,9 @@
       "reversed": false,
       "lanes": 1,
       "turns": [
-        []
+        [
+          "through"
+        ]
       ],
       "oneway": true,
       "speed": 50,
@@ -89794,7 +89796,9 @@
       "reversed": false,
       "lanes": 1,
       "turns": [
-        []
+        [
+          "through"
+        ]
       ],
       "oneway": true,
       "speed": 50,
@@ -89816,7 +89820,9 @@
       "reversed": true,
       "lanes": 2,
       "turns": [
-        []
+        [
+          "through"
+        ]
       ],
       "oneway": false,
       "speed": 50,
@@ -92444,7 +92450,9 @@
       "reversed": false,
       "lanes": 1,
       "turns": [
-        []
+        [
+          "through"
+        ]
       ],
       "oneway": true,
       "speed": 50,
