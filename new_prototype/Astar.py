@@ -4,7 +4,6 @@ import time
 import pygame
 import math
 
-
 class Astar:
     def __init__(self, start_id:int, end_id:int):
         self.start:int = start_id
@@ -34,6 +33,7 @@ class Astar:
         return self.dot_product(forward, backward)
 
     def get_target_vector(self, direction:str, vector:list[float]):
+        # rotate target vector according to direction given
         match direction:
             case "through":
                 return vector
@@ -59,7 +59,8 @@ class Astar:
         min_dist = math.inf
         node = None
         for node_check in self.active_nodes[:]:
-            dist = math.sqrt((nodes[node_check].pos[0] - nodes[self.end].pos[0]) ** 2 + (nodes[node_check].pos[1] - nodes[self.end].pos[1]) ** 2) + self.explored_nodes[node_check]["weight"] ** 1.7
+            #dist = self.explored_nodes[node_check]["weight"]
+            dist = math.sqrt((nodes[node_check].pos[0] - nodes[self.end].pos[0]) ** 2 + (nodes[node_check].pos[1] - nodes[self.end].pos[1]) ** 2) + self.explored_nodes[node_check]["weight"] ** 2
             if  dist < min_dist:
                 min_dist = dist
                 node = node_check
