@@ -1,0 +1,175 @@
+import pygame
+import json
+import random
+import time
+from graph.way import Way
+from graph.node import Node
+from Astar import Astar
+from car import Car
+
+def normalize(point: list[float]) -> list[float]:
+    """
+    Takes in coordinates from real world data and translates them to on screen data
+    """
+    return [
+        (point[0] - translation[0]) * transformation[0],
+        (point[1] - translation[1]) * transformation[1]
+    ]
+
+
+def scale(point: list[float], center: list[float], factor: float, offset: list[float]) -> list[float]:
+    return [
+        (point[0] - center[0]) * factor + center[0] + offset[0],
+        (point[1] - center[1]) * factor + center[1] + offset[1]
+    ]
+
+def normalize_score(data:dict[Node,int]) -> dict[Node,int]:
+    total = 0
+    for value in data.values():
+        total += value
+    return {key: value / total for key, value in data.items()}
+
+def weighted_choice(data:dict[Node,float]) -> Node:
+    counter = random.random()
+    for key, value in data.items():
+        counter -= value
+        if counter <= 0:
+            return key
+    
+
+
+with open("matura\\new_prototype\\graph.json", "r") as file:
+    file_content = json.load(file)
+file.close()
+
+screen_size = [1920, 1080]
+screen_center = [screen_size[0] / 2, screen_size[1] / 2]
+
+transformation = [(min(screen_size) / (file_content["bounds"]["east"] - file_content["bounds"]["west"])), -(min(screen_size) / (file_content["bounds"]["north"] - file_content["bounds"]["south"]))]
+translation = [file_content["bounds"]["west"], 
+            file_content["bounds"]["south"]]
+
+
+nodes:dict[str,Node] = {id:Node(id, normalize(node["pos"]), node["pos"], node["street_count"], node["ways"], node["ways_in"]) for id, node in file_content["nodes"].items()}
+ways:dict[str,Way] = {id:Way(id, way["oneway"], way["lanes"], way["turns"], way["speed"], way["nodes"], way["weights"]) for id, way in file_content["ways"].items()}
+a_star = Astar(random.choice(list(id for id, node in nodes.items() if node.ways != [])), random.choice(list(id for id, node in nodes.items() if node.street_count > 2)))
+start_nodes = {node:ways[node.ways[0][0]].speed ** 2 for node in nodes.values() if node.street_count == 2 and len(node.ways) == 1 and (len(node.ways_in) == 0 or (len(node.ways_in) == 1 and not ways[node.ways[0][0]].oneway))}
+end_nodes = {node:ways[node.ways_in[0][0]].speed ** 2 for node in nodes.values() if node.street_count == 2 and len(node.ways_in) == 1 and (len(node.ways) == 0 or (len(node.ways) == 1 and not ways[node.ways_in[0][0]].oneway))}
+
+dead_ends = [node for node in nodes.values() if node.street_count == 1 and len(node.ways_in) != 0]
+start_nodes = normalize_score(start_nodes)
+end_nodes = normalize_score(end_nodes)
+
+found_paths = {}
+cars = []
+for i in range(500):
+    already_found = False
+    a_star.start = weighted_choice(start_nodes).id
+    a_star.end = weighted_choice(end_nodes).id
+    if (a_star.start, a_star.end) in found_paths:
+        already_found = True
+    if random.random() < 0.2 and found_paths:
+        already_found = True
+        key = random.choice(list(found_paths.keys()))
+        a_star.start, a_star.end = key
+    if not already_found:
+        a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
+        a_star.active_nodes = [a_star.start]
+        a_star.time_searching = 0
+        a_star.active = True
+        while a_star.active and not already_found:
+            
+            a_star.step(nodes, ways)
+            if not a_star.active and not a_star.end in a_star.explored_nodes or (a_star.end in a_star.explored_nodes and len(a_star.explored_nodes[a_star.end]["path"]) < 2):
+                a_star.active = True
+                a_star.start = weighted_choice(start_nodes).id
+                a_star.end = weighted_choice(end_nodes).id
+                a_star.active_nodes = [a_star.start]
+                a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
+                a_star.time_searching = 0
+        found_paths[(a_star.start, a_star.end)] = a_star.explored_nodes[a_star.end]["path"]
+    cars.append(Car(nodes, ways, found_paths[a_star.start, a_star.end]))
+    print(i, already_found)
+print(len(found_paths))
+
+a_star.active = True
+a_star.start = random.choice([node.id for node in start_nodes])
+a_star.end = random.choice([node.id for node in end_nodes])
+a_star.active_nodes = [a_star.start]
+a_star.explored_nodes = {a_star.start: {"weight": 0, "path":[]}}
+a_star.time_searching = 0
+
+
+pygame.init() 
+screen = pygame.display.set_mode(screen_size)
+clock = pygame.time.Clock()
+zoom = 1
+offset = [480, 1080]
+
+dt = 0
+running = True
+starttime = time.perf_counter()
+ways_found = 0
+while running:
+    center = [-offset[0] + screen_center[0], -offset[1] + screen_center[1]]
+    transformation = [(min(screen_size) / (file_content["bounds"]["east"] - file_content["bounds"]["west"])), (min(screen_size) * (1 - 1 / (file_content["bounds"]["north"] - file_content["bounds"]["south"])))]
+    translation = [file_content["bounds"]["west"], file_content["bounds"]["south"]]
+    
+    screen.fill((0, 0, 0))
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    if pygame.key.get_pressed()[pygame.K_UP]:
+        zoom += dt * zoom
+    if pygame.key.get_pressed()[pygame.K_DOWN]:
+        zoom -= dt * zoom
+    
+    if pygame.key.get_pressed()[pygame.K_a]:
+        offset[0] += dt * 500 / zoom
+    if pygame.key.get_pressed()[pygame.K_d]:
+        offset[0] -= dt * 500 / zoom
+    if pygame.key.get_pressed()[pygame.K_w]:
+        offset[1] += dt * 500 / zoom
+    if pygame.key.get_pressed()[pygame.K_s]:
+        offset[1] -= dt * 500 / zoom
+
+
+    for way in ways.values():
+        line = []
+        for segment in way.nodes:
+            line += segment
+        pygame.draw.lines(screen, (255, 255, 255), False, [scale(nodes[node].pos, center, zoom, offset) for node in line], 3)# int(2 * way.lanes * zoom))
+        #if way.id == "326162532r":
+        #    print(way.cars)
+        #    pygame.draw.lines(screen, (255, 0, 0), False, [scale(nodes[node].pos, center, zoom, offset) for node in line], 3)
+
+    """
+    for way in ways.values():
+        line = []
+        for segment in way.nodes:
+            line += segment
+        if way.turns:
+            color = [255, 0, 0]
+            pygame.draw.lines(screen, color, False, [scale(nodes[node].pos, center, zoom, offset) for node in line], 3)# int(2 * way.lanes * zoom))
+
+    a_star.step(nodes, ways)
+    a_star.render(screen, scale, nodes, center, zoom, offset, ways)
+    
+    for node in nodes.values():
+        if node in start_nodes and node in end_nodes:
+            pygame.draw.circle(screen, (255, 255, 0), scale(node.pos, center, zoom, offset), 5)
+        elif node in start_nodes:
+            pygame.draw.circle(screen, (255, 0, 0), scale(node.pos, center, zoom, offset), 5)
+        elif node in end_nodes:
+            pygame.draw.circle(screen, (0, 255, 0), scale(node.pos, center, zoom, offset), 5)
+    """
+    for c in cars[:]:
+        c.update(nodes, ways, dt)
+        c.render(screen, scale, center, zoom, offset)
+        if not c.active:
+            cars.remove(c)
+
+    dt = clock.tick() / 1000
+    pygame.display.flip()
+pygame.quit()
