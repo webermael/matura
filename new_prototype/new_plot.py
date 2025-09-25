@@ -67,7 +67,7 @@ clock:pygame.time.Clock = pygame.time.Clock()
 edge_start:list[float] = None
 
  
-car_timeout:float = 0.01
+car_timeout:float = 0.1
 car_spawner:float = car_timeout
 
 dt:float = 0.0
@@ -130,7 +130,11 @@ while running:
             line:list[int] = []
             for segment in way.nodes:
                 line += segment
-            pygame.draw.lines(screen, (100, 100, 100), False, [nodes[node].display_pos for node in line], max(1, int(15 * scale)))
+                for node in segment:
+                    if nodes[node].is_visible:
+                        pygame.draw.circle(screen, (100, 100, 100), nodes[node].display_pos, way.lanes*6*scale)
+            pygame.draw.lines(screen, (100, 100, 100), False, [nodes[node].display_pos for node in line], max(1, way.lanes*int(12 * scale)))
+    
 
     # selection/zoom handling + drawing
     if pygame.mouse.get_pressed()[0]:
@@ -168,17 +172,18 @@ while running:
                     way.test_visible(nodes)
 
     # A* testing
-    start = time.perf_counter()
-    while time.perf_counter() - start < 0.015:
+    #start = time.perf_counter()
+    #while time.perf_counter() - start < 0.015:
+    for i in range(15):
         astar.step(nodes, ways)
         if not astar.active:
             if astar.end in astar.explored_nodes and astar.start != astar.end:
                 paths[(astar.start, astar.end)] = astar.explored_nodes[astar.end]["path"]
                 path_weights[(astar.start, astar.end)] = start_nodes[nodes[astar.start]] + end_nodes[nodes[astar.end]]
                 #cars.append(Car(nodes, ways, astar.explored_nodes[astar.end]["path"]))
-            else:
-                paths[(astar.start, astar.end)] = []
-                path_weights[(astar.start, astar.end)] = 0
+            #else:
+            #    paths[(astar.start, astar.end)] = []
+            #    path_weights[(astar.start, astar.end)] = 0
             astar.reset(
             weighted_choice(start_nodes).id,
             weighted_choice(end_nodes).id
@@ -194,14 +199,12 @@ while running:
         car_spawner %= car_timeout
 
 
-
     for car in cars[:]:
-        car.update(nodes, ways, dt)
-        car.render(screen, to_screen_space, scale)
+        car.update(nodes, ways, dt, screen, to_screen_space)
+        car.render(screen, to_screen_space, scale, ways)
         if not car.active:
             cars.remove(car)
     #pygame.draw.circle(screen, (255, 0, 255), highlight.display_pos, 5)
-
     dt = clock.tick() / 1000
     pygame.display.flip()
 pygame.quit()
