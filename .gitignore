@@ -1,1 +1,7 @@
 **/__pycache__/*
+build
+out
+.cache
+.idea
+.vs
+.vscode
