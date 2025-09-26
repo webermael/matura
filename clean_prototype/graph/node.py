@@ -3,13 +3,12 @@ if TYPE_CHECKING:
     from graph.way import Way
 
 class Node:
-    def __init__(self, id:str, pos:list[float], display_pos:list[float], street_count:int):
+    def __init__(self, id:str, pos:list[float], street_count:int):
         self.id:str = id
         self.pos:list[float] = pos
         self.street_count:int = street_count
         self.ways_out:list['Way'] = []
         self.ways_in:list['Way'] = []
-        self.display_pos:list[float] = display_pos
         self.is_visible:bool = True
 
     def test_visible(self, screen_size:list[int]):

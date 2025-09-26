@@ -16,10 +16,9 @@ file.close()
 screen_size:list[int] = [1920, 1080]
 screen_center:list[int] = [screen_size[0] // 2, screen_size[1] // 2]
 
-display = Display(Plot(screen_size, screen_center, file_content["bounds"]))
 
 
-nodes:dict[str,Node] = {id:Node(id, node["pos"], display.plot.to_screen_space(node["pos"]), node["street_count"]) for id, node in file_content["nodes"].items()}
+nodes:dict[str,Node] = {id:Node(id, node["pos"], node["street_count"]) for id, node in file_content["nodes"].items()}
 ways:list[Way] = [Way(id, way["nodes"].index(segment), way["oneway"], way["lanes"], way["turns"][way["nodes"].index(segment)], way["speed"], [nodes[id] for id in segment], way["weights"][way["nodes"].index(segment)]) for id, way in file_content["ways"].items() for segment in way["nodes"]]
 nodes:list[Node] = list(nodes.values())
 for way in ways:
@@ -35,9 +34,8 @@ astar_surface:pygame.Surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 interface_surface:pygame.Surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 clock:pygame.time.Clock = pygame.time.Clock()
 
-for way in ways:
-    if way.is_visible:
-        pygame.draw.lines(road_surface, (100, 100, 100), False, way.display_way, max(1, way.lanes*int(12 * display.plot.scale)))
+display = Display(Plot(screen_size, screen_center, file_content["bounds"]))
+display.reset_view(road_surface, ways)
 
 
 dt:float = 0.0
@@ -83,10 +81,11 @@ while running:
             random.choice([node for node in nodes if len(node.ways_out) > 1]),
             random.choice([node for node in nodes if len(node.ways_out) > 1])
         )
+    astar.render(astar_surface, display.plot.to_screen_space)
 
     screen.blit(road_surface, (0, 0))
     screen.blit(interface_surface, (0, 0))
-
+    screen.blit(astar_surface, (0, 0))
     dt = clock.tick() / 1000
     pygame.display.flip()
 pygame.quit()

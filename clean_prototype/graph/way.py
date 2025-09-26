@@ -12,7 +12,6 @@ class Way:
         self.turns:str = turns
         self.speed:int = speed
         self.nodes:list['Node'] = nodes
-        self.display_way:list[list[float]] = [node.display_pos for node in self.nodes]
         self.cars:list['Car'] = []
         self.length:float = length
         self.is_visible:bool = True

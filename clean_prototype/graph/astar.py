@@ -7,12 +7,6 @@ from graph.way import Way
 
 class Astar:
     def __init__(self, start_node:Node, end_node:Node):
-        self.start:Node
-        self.end:Node
-        self.explored_nodes:dict[Node,dict[str,int|list[Way]]]
-        self.active_nodes:list[Node]
-        self.time_searching:float
-        self.active:bool
         self.reset(start_node, end_node)
     
     def reset(self, start_node:Node, end_node:Node):
@@ -83,13 +77,13 @@ class Astar:
         self.active_nodes.remove(node)
         self.time_searching += (time.perf_counter() - start)
 
-    def render(self, screen:pygame.Surface):
+    def render(self, screen:pygame.Surface, to_screen):
         for node in self.explored_nodes:
-            pygame.draw.circle(screen, (250, 150, 0), node.display_pos, 5)
+            pygame.draw.circle(screen, (250, 150, 0), to_screen(node.pos), 5)
         for node in self.active_nodes:
-            pygame.draw.circle(screen, (150, 250, 0), node.display_pos, 5)
+            pygame.draw.circle(screen, (150, 250, 0), to_screen(node.pos), 5)
 
-        pygame.draw.circle(screen, (255, 0, 0), self.start.display_pos, 5)
-        pygame.draw.circle(screen, (0, 255, 0), self.end.display_pos, 5)
+        pygame.draw.circle(screen, (255, 0, 0), to_screen(self.start.pos), 5)
+        pygame.draw.circle(screen, (0, 255, 0), to_screen(self.end.pos), 5)
         if self.end in self.explored_nodes:
-            [pygame.draw.lines(screen, (0, 255, 255), False, [node.display_pos for node in way.nodes], 5) for way in self.explored_nodes[self.end]["path"]]
+            [pygame.draw.lines(screen, (0, 255, 255), False, [to_screen(node.pos) for node in way.nodes], 5) for way in self.explored_nodes[self.end]["path"]]
