@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 #include <node.h>
 #include <../traffic/car.h>
