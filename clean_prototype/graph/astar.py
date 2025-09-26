@@ -52,7 +52,7 @@ class Astar:
         min_dist = math.inf
         node = None
         for node_check in self.active_nodes:
-            dist = math.hypot(node_check.pos[0] - self.end.pos[0], node_check.pos[1] - self.end.pos[1])
+            dist = math.hypot(node_check.pos[0] - self.end.pos[0], node_check.pos[1] - self.end.pos[1]) + self.explored_nodes[node_check]["weight"] ** 1.8
             if  dist < min_dist:
                 min_dist = dist
                 node = node_check
@@ -81,9 +81,9 @@ class Astar:
         for node in self.explored_nodes:
             pygame.draw.circle(screen, (250, 150, 0), to_screen(node.pos), 5)
         for node in self.active_nodes:
-            pygame.draw.circle(screen, (150, 250, 0), to_screen(node.pos), 5)
+            pygame.draw.circle(screen, (50, 150, 0), to_screen(node.pos), 5)
 
         pygame.draw.circle(screen, (255, 0, 0), to_screen(self.start.pos), 5)
-        pygame.draw.circle(screen, (0, 255, 0), to_screen(self.end.pos), 5)
+        pygame.draw.circle(screen, (0, 255, 150), to_screen(self.end.pos), 5)
         if self.end in self.explored_nodes:
             [pygame.draw.lines(screen, (0, 255, 255), False, [to_screen(node.pos) for node in way.nodes], 5) for way in self.explored_nodes[self.end]["path"]]

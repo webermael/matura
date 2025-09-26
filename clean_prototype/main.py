@@ -1,7 +1,6 @@
 import pygame
 import json
 import random
-import time
 
 from graph.node import Node
 from graph.way import Way
@@ -75,7 +74,8 @@ while running:
             selecting = False
             display.set_view(road_surface, ways, rect_value)
 
-    astar.step()
+    for i in range(10):
+        astar.step()
     if not astar.active:
         astar.reset(
             random.choice([node for node in nodes if len(node.ways_out) > 1]),
