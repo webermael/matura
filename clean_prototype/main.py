@@ -1,13 +1,15 @@
 import pygame
 import json
+import random
 import time
 
 from graph.node import Node
 from graph.way import Way
 from graph.plot import Plot
+from graph.astar import Astar
 from display import Display
 
-with open("matura\\new_prototype\\Aarau.json", "r") as file:
+with open("matura\\new_prototype\\graph.json", "r") as file:
     file_content:dict = json.load(file)
 file.close()
 
@@ -23,11 +25,20 @@ nodes:list[Node] = list(nodes.values())
 for way in ways:
     way.nodes[0].ways_out.append(way)
     way.nodes[-1].ways_in.append(way)
-
+astar = Astar(random.choice([node for node in nodes if len(node.ways_out) > 1]), random.choice([node for node in nodes if len(node.ways_out) > 1]))
+astar.step()
 
 pygame.init() 
 screen:pygame.Surface = pygame.display.set_mode(screen_size)
+road_surface:pygame.Surface = pygame.Surface(screen_size)
+astar_surface:pygame.Surface = pygame.Surface(screen_size, pygame.SRCALPHA)
+interface_surface:pygame.Surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 clock:pygame.time.Clock = pygame.time.Clock()
+
+for way in ways:
+    if way.is_visible:
+        pygame.draw.lines(road_surface, (100, 100, 100), False, way.display_way, max(1, way.lanes*int(12 * display.plot.scale)))
+
 
 dt:float = 0.0
 running:bool = True
@@ -36,7 +47,8 @@ selection_start:list[float] = [0.0, 0.0]
 rect_value:list[float]
 
 while running:
-    screen.fill((0, 0, 0))
+    astar_surface.fill((0, 0, 0, 0))
+    interface_surface.fill((0, 0, 0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -44,11 +56,7 @@ while running:
         # reset zoom
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                display.reset_view(nodes, ways)
-    
-    for way in ways:
-        if way.is_visible:
-            pygame.draw.lines(screen, (100, 100, 100), False, way.display_way, max(1, way.lanes*int(12 * display.plot.scale)))
+                display.reset_view(road_surface, ways)
 
     # selection/zoom handling + drawing
     if pygame.mouse.get_pressed()[0]:
@@ -62,11 +70,22 @@ while running:
         b = max(selection_start[1], mouse_pos[1])
         r = max(selection_start[0], mouse_pos[0])
         rect_value = [t, l, b, r]
-        pygame.draw.rect(screen, (255, 0, 0), ((l, t), (r-l, b-t)), 2)
+        pygame.draw.rect(interface_surface, (255, 0, 0), ((l, t), (r-l, b-t)), 2)
+
     else:
         if selecting:
             selecting = False
-            display.set_view(nodes, ways, rect_value)
+            display.set_view(road_surface, ways, rect_value)
+
+    astar.step()
+    if not astar.active:
+        astar.reset(
+            random.choice([node for node in nodes if len(node.ways_out) > 1]),
+            random.choice([node for node in nodes if len(node.ways_out) > 1])
+        )
+
+    screen.blit(road_surface, (0, 0))
+    screen.blit(interface_surface, (0, 0))
 
     dt = clock.tick() / 1000
     pygame.display.flip()
