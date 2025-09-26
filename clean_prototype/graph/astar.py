@@ -7,14 +7,20 @@ from graph.way import Way
 
 class Astar:
     def __init__(self, start_node:Node, end_node:Node):
+        self.start:Node
+        self.end:Node
+        self.explored_nodes:dict[Node,dict[str,int|list[Way]]]
+        self.active_nodes:list[Node]
+        self.time_searching:float
+        self.active:bool
         self.reset(start_node, end_node)
     
     def reset(self, start_node:Node, end_node:Node):
         self.start:Node = start_node
         self.end:Node = end_node
-        self.explored_nodes:dict[Node, dict[str,str|list[Way]]] = {self.start: {"weight": 0, "path": []}}
+        self.explored_nodes:dict[Node, dict[str,int|list[Way]]] = {self.start: {"weight": 0, "path": []}}
         self.active_nodes:list[Node] = [self.start]
-        self.time_searching:float = 0
+        self.time_searching:float = 0.0
         self.active:bool = True
 
     def get_dot_product(self, node:Node, way:list[str|int], direction:str):
@@ -22,7 +28,7 @@ class Astar:
         old_node = old_way.nodes[-2].pos
         first_node = way.nodes[1].pos
         forward = [first_node[0] - node.pos[0], first_node[1] - node.pos[1]]
-        backward = self.get_target_vector(direction, node.pos[0] - old_node[0], node.pos[1] - old_node[1])
+        backward = self.get_target_vector(direction, [node.pos[0] - old_node[0], node.pos[1] - old_node[1]])
         return self.dot_product(forward, backward)
     
     def get_target_vector(self, direction:str, vector:list[float]):
@@ -52,7 +58,7 @@ class Astar:
         min_dist = math.inf
         node = None
         for node_check in self.active_nodes:
-            dist = self.explored_nodes[node_check]["weight"] ** 2 + math.hypot(node_check.pos[0] - self.end.pos[0], node_check.pos[1] - self.end.pos[1])
+            dist = math.hypot(node_check.pos[0] - self.end.pos[0], node_check.pos[1] - self.end.pos[1])
             if  dist < min_dist:
                 min_dist = dist
                 node = node_check
@@ -80,5 +86,10 @@ class Astar:
     def render(self, screen:pygame.Surface):
         for node in self.explored_nodes:
             pygame.draw.circle(screen, (250, 150, 0), node.display_pos, 5)
+        for node in self.active_nodes:
+            pygame.draw.circle(screen, (150, 250, 0), node.display_pos, 5)
+
         pygame.draw.circle(screen, (255, 0, 0), self.start.display_pos, 5)
-        pygame.draw.circle(screen, (0, 255, 0), self.start.display_pos, 5)
+        pygame.draw.circle(screen, (0, 255, 0), self.end.display_pos, 5)
+        if self.end in self.explored_nodes:
+            [pygame.draw.lines(screen, (0, 255, 255), False, [node.display_pos for node in way.nodes], 5) for way in self.explored_nodes[self.end]["path"]]
