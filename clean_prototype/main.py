@@ -1,14 +1,17 @@
 import pygame
 import json
 import random
+import time
+import math
 
 from graph.node import Node
 from graph.way import Way
 from graph.plot import Plot
 from graph.astar import Astar
+from traffic.car import Car
 from display import Display
 
-with open("matura\\new_prototype\\graph.json", "r") as file:
+with open("matura\\new_prototype\\Aarau.json", "r") as file:
     file_content:dict = json.load(file)
 file.close()
 
@@ -16,20 +19,24 @@ screen_size:list[int] = [1920, 1080]
 screen_center:list[int] = [screen_size[0] // 2, screen_size[1] // 2]
 
 
-
+cars:list[Car] = []
 nodes:dict[str,Node] = {id:Node(id, node["pos"], node["street_count"]) for id, node in file_content["nodes"].items()}
 ways:list[Way] = [Way(id, way["nodes"].index(segment), way["oneway"], way["lanes"], way["turns"][way["nodes"].index(segment)], way["speed"], [nodes[id] for id in segment], way["weights"][way["nodes"].index(segment)]) for id, way in file_content["ways"].items() for segment in way["nodes"]]
 nodes:list[Node] = list(nodes.values())
 for way in ways:
     way.nodes[0].ways_out.append(way)
     way.nodes[-1].ways_in.append(way)
-astar = Astar(random.choice([node for node in nodes if len(node.ways_out) > 1]), random.choice([node for node in nodes if len(node.ways_out) > 1]))
+
+start_nodes:dict[Node,float] = [node for node in nodes if node.street_count == 2 and len(node.ways_out) == 1 and (len(node.ways_in) == 0 or (len(node.ways_in) == 1 and not node.ways_out[0].oneway))]
+end_nodes:dict[Node,float] = [node for node in nodes if node.street_count == 2 and len(node.ways_in) == 1 and (len(node.ways_out) == 0 or (len(node.ways_out) == 1 and not node.ways_in[0].oneway))]
+
+astar = Astar(random.choice(start_nodes), random.choice(end_nodes))
 astar.step()
 
 pygame.init() 
 screen:pygame.Surface = pygame.display.set_mode(screen_size)
 road_surface:pygame.Surface = pygame.Surface(screen_size)
-astar_surface:pygame.Surface = pygame.Surface(screen_size, pygame.SRCALPHA)
+car_surface:pygame.Surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 interface_surface:pygame.Surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 clock:pygame.time.Clock = pygame.time.Clock()
 
@@ -37,14 +44,20 @@ display = Display(Plot(screen_size, screen_center, file_content["bounds"]))
 display.reset_view(road_surface, ways)
 
 
+respawn_time:float = 0.2
+spawn_timer:float = respawn_time
+paths:list[list[Way]] = []
+start_node_timers:dict[Node,float] = {}
+start_node_downtime:float = 3
+
 dt:float = 0.0
 running:bool = True
 selecting:bool = False
 selection_start:list[float] = [0.0, 0.0]
 rect_value:list[float]
-
 while running:
-    astar_surface.fill((0, 0, 0, 0))
+    start = time.perf_counter()
+    car_surface.fill((0, 0, 0, 0))
     interface_surface.fill((0, 0, 0, 0))
 
     for event in pygame.event.get():
@@ -54,6 +67,8 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 display.reset_view(road_surface, ways)
+            if event.key == pygame.K_SPACE:
+                spawn_timer = math.inf if spawn_timer != math.inf else 0
 
     # selection/zoom handling + drawing
     if pygame.mouse.get_pressed()[0]:
@@ -74,18 +89,38 @@ while running:
             selecting = False
             display.set_view(road_surface, ways, rect_value)
 
-    for i in range(10):
+    for i in range(80):
         astar.step()
-    if not astar.active:
-        astar.reset(
-            random.choice([node for node in nodes if len(node.ways_out) > 1]),
-            random.choice([node for node in nodes if len(node.ways_out) > 1])
-        )
-    astar.render(astar_surface, display.plot.to_screen_space)
+        if not astar.active:
+            if astar.end in astar.explored_nodes and astar.start != astar.end:
+                paths.append(astar.explored_nodes[astar.end]["path"])
+            astar.reset(
+            random.choice(start_nodes),
+            random.choice(end_nodes)
+            )
+
+    for node, timer in start_node_timers.copy().items():
+        start_node_timers[node] -= dt
+        if timer <= 0:
+            start_node_timers.pop(node)
+    spawn_timer -= dt
+    if spawn_timer <= 0 and paths != []:
+        path = random.choice(paths)
+        if path[0].nodes[0] not in start_node_timers:
+            cars.append(Car(path))
+            start_node_timers[path[0].nodes[0]] = start_node_downtime
+            spawn_timer %= respawn_time
+
+    for car in cars[:]:
+        car.update(dt)
+        car.render(car_surface, display)
+        if not car.active:
+            cars.remove(car)
 
     screen.blit(road_surface, (0, 0))
     screen.blit(interface_surface, (0, 0))
-    screen.blit(astar_surface, (0, 0))
+    screen.blit(car_surface, (0, 0))
     dt = clock.tick() / 1000
+    #print(1/max(time.perf_counter() - start, 0.0001))
     pygame.display.flip()
 pygame.quit()
