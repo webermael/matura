@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 4.1.1)
 project(matura)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -16,7 +16,7 @@ FetchContent_MakeAvailable(SFML)
 FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
-  GIT_TAG v3.11.2 # pick a stable release
+  GIT_TAG v3.11.3
 )
 
 FetchContent_MakeAvailable(json)
@@ -24,4 +24,4 @@ FetchContent_MakeAvailable(json)
 add_executable(main src/main.cpp)
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)
-target_link_libraries(my_app PRIVATE nlohmann_json::nlohmann_json) #json
+target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json) #json
