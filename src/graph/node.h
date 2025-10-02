@@ -1,6 +1,6 @@
-#include <way.h>
-
 #include <vector>
+
+#include "way.h"
 
 class Node {
  private:
