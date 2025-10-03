@@ -1,32 +1,35 @@
+#include <SFML/Graphics.hpp>
+#include <string>
 #include <vector>
 
-#include "way.h"
+// #include "way.h"
 
 class Node {
  private:
  public:
   std::string id;
-  std::vector<float> pos;
-  std::vector<float> display_pos;
+  sf::Vector2f pos;
+  sf::Vector2f display_pos;
   int street_count;
-  std::vector<Way> ways_out;
-  std::vector<Way> ways_in;
+  // std::vector<Way> ways_out;
+  // std::vector<Way> ways_in;
   bool is_visible;
 
-  Node(std::string id, std::vector<float> pos, std::vector<float> display_pos,
-       int street_count, std::vector<Way> ways_out, std::vector<Way> ways_in)
+  Node(
+      std::string id, sf::Vector2f pos, sf::Vector2f display_pos, int street_count /* , std::vector<Way> ways_out, std::vector<Way> ways_in */)
       : id(id),
         pos(pos),
         display_pos(display_pos),
-        street_count(street_count),
-        ways_out(ways_out),
-        ways_in(ways_in) {
+        street_count(street_count) /* ,
+         ways_out(ways_out),
+         ways_in(ways_in) */
+  {
     is_visible = true;
   }
 
-  void test_visible(std::vector<int> screen_size) {
-    if (0 < display_pos[0] < screen_size[0] &&
-        0 < display_pos[1] < screen_size[1]) {
+  void test_visible(sf::Vector2u screen_size) {
+    if (0 < display_pos.x < screen_size.x &&
+        0 < display_pos.y < screen_size.y) {
       is_visible = true;
     } else {
       is_visible = true;
