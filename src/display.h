@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 
 #include "graph/node.h"
@@ -7,7 +8,7 @@
 class Display {
  public:
   Plot plot;
-  Display(Plot plot) : plot(plot);
+  Display(const Plot& plot) : plot(plot) {}
 
   /*
   Pointers and References
@@ -18,10 +19,11 @@ class Display {
   pointers (Node*) (for the same reason, its attribute has to be acessed using
   "->")
   */
-  void reset_view(std::vector<Node>& nodes, std::vector<Way>& ways) {
+  void reset_view(std::unordered_map<std::string, Node>& nodes,
+                  std::vector<Way>& ways) {
     plot.reset_values();
 
-    for (auto& node : nodes) {
+    for (auto& [id, node] : nodes) {
       node.display_pos = plot.to_screen_space(node.pos);
       node.test_visible(plot.screen_size);
     }
@@ -36,11 +38,11 @@ class Display {
     }
   };
 
-  void set_view(std::vector<Node>& nodes, std::vector<Way>& ways,
-                std::vector<float>& rect_value) {
+  void set_view(std::unordered_map<std::string, Node>& nodes,
+                std::vector<Way>& ways, std::vector<float>& rect_value) {
     plot.set_values(rect_value[0], rect_value[1], rect_value[2], rect_value[3]);
 
-    for (auto& node : nodes) {
+    for (auto& [id, node] : nodes) {
       node.display_pos = plot.to_screen_space(node.pos);
       node.test_visible(plot.screen_size);
     }
