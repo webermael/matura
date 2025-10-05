@@ -13,7 +13,7 @@
 using json = nlohmann::json;
 
 int main() {
-  std::ifstream file("Aarau.json");
+  std::ifstream file("./src/Aarau.json");
 
   json file_content = json::parse(file);
 
@@ -48,7 +48,7 @@ int main() {
       }
 
       ways.emplace_back(way_id, i, way["oneway"], way["lanes"], way["turns"][i],
-                        way["speed"], segment_nodes, way["weights"]);
+                        way["speed"], segment_nodes, way["weights"][i]);
     }
   }
 
@@ -58,7 +58,7 @@ int main() {
   // }
 
   // --- GAME LOOP ---
-  auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "Matura");
+  auto window = sf::RenderWindow(sf::VideoMode({screen_size}), "Matura");
   window.setFramerateLimit(144);
 
   float dt = 0.0;
