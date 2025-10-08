@@ -32,7 +32,11 @@ int main() {
     sf::Vector2f display_pos = display.plot.to_screen_space(pos);
     int street_count = node["street_count"];
 
-    nodes.emplace(node_id, Node(node_id, pos, display_pos, street_count));
+    std::vector<Way*> ways_in;
+    std::vector<Way*> ways_out;
+
+    nodes.emplace(node_id, Node(node_id, pos, display_pos, street_count,
+                                ways_in, ways_out));
   }
 
   std::vector<Way> ways;
@@ -52,10 +56,10 @@ int main() {
     }
   }
 
-  // for (auto& way : ways) {
-  //   way.nodes[0].ways_out.push_back(way)
-  //   way.nodes[-1].ways_out.push_back(way)
-  // }
+  for (auto& way : ways) {
+    way.nodes[0]->ways_out.push_back(&way);  // push back adress (&) of way
+    way.nodes.back()->ways_in.push_back(&way);
+  }
 
   // --- GAME LOOP ---
   auto window = sf::RenderWindow(sf::VideoMode({screen_size}), "Matura");
