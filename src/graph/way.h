@@ -18,7 +18,7 @@ class Way {
   int speed;
   std::vector<Node*> nodes;
   std::vector<sf::Vector2f> display_way;
-  std::vector<Car> cars;
+  std::vector<Car*> cars;
   float length;
   bool is_visible;
 
