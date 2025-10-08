@@ -63,7 +63,9 @@ int main() {
   }
 
   // --- GAME LOOP ---
-  auto window = sf::RenderWindow(sf::VideoMode({screen_size}), "Matura");
+  // auto window = sf::RenderWindow(sf::VideoMode({screen_size}), "Matura");
+  auto window =
+      sf::RenderWindow(sf::VideoMode(screen_size.x, screen_size.y), "Matura");
   window.setFramerateLimit(144);
   sf::Clock clock;
 
@@ -74,15 +76,26 @@ int main() {
   std::vector<float> rect_value(4);
 
   while (running) {  // window.isOpen()
-    while (const std::optional event = window.pollEvent()) {
-      if (event->is<sf::Event::Closed>()) {
+    // while (const std::optional event = window.pollEvent()) {
+    //   if (event->is<sf::Event::Closed>()) {
+    //     window.close();
+    //     running = false;
+    //   } else if (const auto* keyPressed =
+    //                  event->getIf<sf::Event::KeyPressed>()) {
+    //     if (keyPressed->scancode == sf::Keyboard::Scancode::Escape) {
+    //       display.reset_view(nodes, ways);
+    //     }
+    //   }
+    // }
+
+    sf::Event event;
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
         window.close();
         running = false;
-      } else if (const auto* keyPressed =
-                     event->getIf<sf::Event::KeyPressed>()) {
-        if (keyPressed->scancode == sf::Keyboard::Scancode::Escape) {
-          display.reset_view(nodes, ways);
-        }
+      } else if (event.type == sf::Event::KeyPressed &&
+                 event.key.code == sf::Keyboard::Escape) {
+        display.reset_view(nodes, ways);
       }
     }
 
