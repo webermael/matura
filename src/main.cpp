@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <fstream>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <unordered_map>
@@ -64,17 +65,19 @@ int main() {
   // --- GAME LOOP ---
   auto window = sf::RenderWindow(sf::VideoMode({screen_size}), "Matura");
   window.setFramerateLimit(144);
+  sf::Clock clock;
 
-  float dt = 0.0;
+  float dt = 0.0f;
   bool running = true;
   bool selecting = false;
-  sf::Vector2f selection_start = {0.0f, 0.0f};
-  std::vector<float> rect_value;
+  sf::Vector2i selection_start;
+  std::vector<float> rect_value(4);
 
-  while (window.isOpen()) {
+  while (running) {  // window.isOpen()
     while (const std::optional event = window.pollEvent()) {
       if (event->is<sf::Event::Closed>()) {
         window.close();
+        running = false;
       } else if (const auto* keyPressed =
                      event->getIf<sf::Event::KeyPressed>()) {
         if (keyPressed->scancode == sf::Keyboard::Scancode::Escape) {
@@ -83,7 +86,6 @@ int main() {
       }
     }
 
-    // --- current translation status ---
     window.clear(sf::Color::Black);
 
     for (auto& way : ways) {
@@ -95,6 +97,38 @@ int main() {
         window.draw(draw_way);
       }
     }
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+      sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+      if (!selecting) {
+        selecting = true;
+        selection_start = mouse_pos;
+      }
+      float t = std::min(selection_start.y, mouse_pos.y);
+      float l = std::min(selection_start.x, mouse_pos.x);
+      float b = std::min(selection_start.y, mouse_pos.y);
+      float r = std::min(selection_start.x, mouse_pos.x);
+
+      rect_value[0] = t;
+      rect_value[1] = l;
+      rect_value[2] = b;
+      rect_value[3] = r;
+
+      sf::RectangleShape rectangle({r - l, b - t});
+      rectangle.setPosition({l, t});
+      rectangle.setFillColor(sf::Color::Red);
+      rectangle.setOutlineThickness(10.0f);
+      window.draw(rectangle);
+      std::cout << "Drew Rect" << std::endl;
+    } else {
+      if (selecting) {
+        selecting = false;
+        display.set_view(nodes, ways, rect_value);
+      }
+    }
+    // --- current translation status ---
+
+    dt = clock.restart().asSeconds();
 
     window.display();
   }
