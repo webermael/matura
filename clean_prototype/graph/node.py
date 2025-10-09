@@ -10,6 +10,7 @@ class Node:
         self.ways_out:list['Way'] = []
         self.ways_in:list['Way'] = []
         self.is_visible:bool = True
+        self.claimed_car:dict[list[float]] = {}
 
     def test_visible(self, screen_size:list[int]):
         if 0 < self.display_pos[0] < screen_size[0] and 0 < self.display_pos[1] < screen_size[1]:

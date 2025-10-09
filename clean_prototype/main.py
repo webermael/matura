@@ -44,11 +44,11 @@ display = Display(Plot(screen_size, screen_center, file_content["bounds"]))
 display.reset_view(road_surface, ways)
 
 
-respawn_time:float = 0.2
+respawn_time:float = 0.5
 spawn_timer:float = respawn_time
 paths:list[list[Way]] = []
 start_node_timers:dict[Node,float] = {}
-start_node_downtime:float = 3
+start_node_downtime:float = 5
 
 dt:float = 0.0
 running:bool = True
@@ -112,10 +112,14 @@ while running:
             spawn_timer %= respawn_time
 
     for car in cars[:]:
-        car.update(dt)
+        car.update(dt, car_surface, display.plot.to_screen_space)
         car.render(car_surface, display)
         if not car.active:
             cars.remove(car)
+
+    for node in nodes:
+        if node.claimed_car:
+            pygame.draw.circle(car_surface, (0, 255, 255), display.plot.to_screen_space(node.pos), 5)
 
     screen.blit(road_surface, (0, 0))
     screen.blit(interface_surface, (0, 0))
