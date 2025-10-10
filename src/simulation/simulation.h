@@ -1,0 +1,165 @@
+#pragma once
+#include <SFML/Graphics.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+#include <nlohmann/json.hpp>
+#include <random>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "../interface/display.h"
+#include "../utils/event_handler.h"
+#include "car.h"
+
+using json = nlohmann::json;
+
+class Simulation {
+ public:
+  std::vector<Node> nodes;
+  std::unordered_map<std::string, std::size_t> id_to_index;
+  std::vector<Way> ways;
+  Astar astar;
+  std::vector<Node*> start_nodes;
+  std::vector<Node*> end_nodes;
+  std::vector<std::unique_ptr<Car>> cars = {};
+  std::vector<std::vector<Way*>> paths;
+  std::unique_ptr<Plot> plot;        // delayed construction
+  std::unique_ptr<Display> display;  // delayed construction
+  bool mouse_just_pressed = false;
+
+  Simulation(std::string json_path, sf::Vector2u screen_size) {
+    json file_content(import_json(json_path));
+    node_setup(file_content);
+    way_setup(file_content);
+    node_way_coupling();
+    plot = std::make_unique<Plot>(screen_size, file_content["bounds"]);
+    display = std::make_unique<Display>(*plot);
+    display->reset_view(nodes, ways);
+    astar_node_setup();
+  }
+
+  json import_json(std::string file_path) {
+    // Read file
+    std::ifstream file(file_path);
+    json file_content = json::parse(file);
+    return file_content;
+  }
+
+  void node_setup(json file_content) {
+    // create node objects
+    for (auto& [node_id, node] : file_content["nodes"].items()) {
+      sf::Vector2<double> pos = {node["pos"][0], node["pos"][1]};
+      int street_count = node["street_count"];
+
+      std::vector<Way*> ways_in;  // declare later
+      std::vector<Way*> ways_out;
+      id_to_index.emplace(node_id, (nodes.size()));
+      nodes.push_back(Node(node_id, pos, street_count, ways_in, ways_out));
+    }
+  }
+
+  void way_setup(json file_content) {
+    // create ways
+    for (auto& [way_id, way] : file_content["ways"].items()) {
+      for (size_t i = 0; i < way["nodes"].size(); i++) {
+        const auto& segment = way["nodes"][i];
+
+        std::vector<Node*> segment_nodes;  // pointer vector
+        segment_nodes.reserve(segment.size());
+        // pick out right node segment
+        for (const auto& node_id : segment) {
+          size_t index = id_to_index[node_id];
+          segment_nodes.push_back(&nodes[index]);
+        }
+
+        ways.emplace_back(way_id, i, way["oneway"], way["lanes"],
+                          way["turns"][i], way["speed"], segment_nodes,
+                          way["weights"][i]);
+      }
+    }
+  }
+
+  void node_way_coupling() {
+    // give way references to nodes
+    for (auto& way : ways) {
+      way.nodes[0]->ways_out.push_back(&way);  // push back adress (&) of way
+      way.nodes.back()->ways_in.push_back(&way);
+    }
+  }
+
+  void astar_node_setup() {
+    for (size_t i = 0; i < nodes.size(); i++) {
+      if (nodes[i].street_count == 2 && nodes[i].ways_out.size() == 1 &&
+          (nodes[i].ways_out[0]->oneway && nodes[i].ways_in.size() == 0 ||
+           !nodes[i].ways_out[0]->oneway && nodes[i].ways_in.size() == 1)) {
+        start_nodes.push_back(nodes[i].ways_out[0]->nodes.front());
+      }
+      if (nodes[i].street_count == 2 && nodes[i].ways_in.size() == 1 &&
+          (nodes[i].ways_in[0]->oneway && nodes[i].ways_out.size() == 0 ||
+           !nodes[i].ways_in[0]->oneway && nodes[i].ways_out.size() == 1)) {
+        end_nodes.push_back(nodes[i].ways_in[0]->nodes.back());
+      }
+    }
+  }
+
+  void astar_update(int step_count) {  // run 10 steps of A*
+    if (astar.active) {
+      for (size_t i = 0; i < step_count; i++) {
+        astar.step();
+      }
+    } else {
+      // if new path is found, add to list
+      if (astar.explored_nodes.count(astar.end) &&
+          !std::count(paths.begin(), paths.end(),
+                      astar.explored_nodes[astar.end].path) &&
+          !(astar.start == astar.end)) {
+        paths.push_back(astar.explored_nodes[astar.end].path);
+      }
+      // start next search
+      astar.reset(start_nodes[rand() % start_nodes.size()],
+                  end_nodes[rand() % end_nodes.size()]);
+    }
+  }
+
+  void add_car() {
+    if (paths.size() > 0) {
+      std::vector<Way*> path = paths[rand() % paths.size()];
+      cars.emplace_back(std::make_unique<Car>(path));
+    }
+  }
+
+  void update(InputState input) {
+    if (input.escape_pressed) {
+      display->reset_view(nodes, ways);
+    }
+    display->update(input.mouse_pos, input.left_mouse_pressed,
+                    input.left_mouse_just_pressed,
+                    input.left_mouse_just_released, nodes, ways);
+    astar_update(10);
+    // --- CARS ---
+    // update
+    for (auto& car : cars) {
+      car->update(input.dt, ACCELERATION);
+    }
+    // Remove inactive
+    cars.erase(std::remove_if(cars.begin(), cars.end(),
+                              [](const std::unique_ptr<Car>& car) {
+                                return !car->active;
+                              }),
+               cars.end());
+    // sort cars in each way according to their progress
+    for (auto& way : ways) {
+      std::sort(way.cars.begin(), way.cars.end(), [](Car* a, Car* b) {
+        return a->way_progress < b->way_progress;
+      });
+    }
+  }
+
+  void draw(sf::RenderWindow& window) {
+    display->draw_cars(cars);
+    display->draw_selection_rect();
+    display->draw_to_window(window);
+  }
+};
