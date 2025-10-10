@@ -1,1 +1,8 @@
 **/__pycache__/*
+build
+out
+compile_commands.json
+.cache
+.idea
+.vs
+.vscode
