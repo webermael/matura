@@ -24,9 +24,9 @@ class Plot {
         std::min(screen_size.x / graph_size.x, screen_size.y / graph_size.y);
   }
 
-  Plot(sf::Vector2u screen_size, sf::Vector2f screen_center,
-       std::unordered_map<std::string, float> bounds)
+  Plot(sf::Vector2u screen_size, std::unordered_map<std::string, float> bounds)
       : screen_size(screen_size), screen_center(screen_center), bounds(bounds) {
+    screen_center = sf::Vector2f(screen_size.x / 2, screen_size.y / 2);
     reset_values();
   }
 
