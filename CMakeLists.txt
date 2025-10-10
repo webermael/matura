@@ -13,6 +13,26 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
+# Fetch ImGui
+FetchContent_Declare(ImGui
+        GIT_REPOSITORY https://github.com/ocornut/imgui
+        GIT_TAG v1.89.9
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        SYSTEM)
+FetchContent_MakeAvailable(ImGui)
+FetchContent_GetProperties(ImGui SOURCE_DIR IMGUI_DIR)
+
+# Fetch ImGui-SFML
+set(IMGUI_SFML_FIND_SFML OFF)
+FetchContent_Declare(ImGui-SFML
+        GIT_REPOSITORY https://github.com/SFML/imgui-sfml
+        GIT_TAG 2.6.x
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        SYSTEM)
+FetchContent_MakeAvailable(ImGui-SFML)
+
 # json 
 FetchContent_Declare(
   json
@@ -25,5 +45,6 @@ FetchContent_MakeAvailable(json)
 add_executable(main src/main.cpp)
 target_compile_features(main PRIVATE cxx_std_17)
 #target_link_libraries(main PRIVATE SFML::Graphics)
+target_link_libraries(main PRIVATE ImGui-SFML::ImGui-SFML)
 target_link_libraries(main PRIVATE sfml-graphics sfml-window sfml-system)
 target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json) #json
