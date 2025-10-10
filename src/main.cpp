@@ -10,12 +10,13 @@
 
 #include "interface/display.h"
 #include "interface/plot.h"
-#include "simulation/astar.h"
 #include "simulation/car.h"
 #include "simulation/node.h"
+#include "simulation/pathfinder.h"
 #include "simulation/simulation.h"
 #include "simulation/way.h"
 #include "utils/event_handler.h"
+#include "utils/settings.h"
 
 using json = nlohmann::json;
 
@@ -36,9 +37,6 @@ int main() {
   // Create Simulation with json data
   Simulation sim("./src/Aarau.json", screen_size);
 
-  // get cars ready
-  float car_reset = 0.5f;
-  float car_timer = car_reset;
   sf::Clock clock;
   float dt = 0.0f;
 
@@ -47,13 +45,6 @@ int main() {
     handle_events(window, input);
 
     sim.update(input);
-
-    // spawn new car if timer depletes
-    car_timer -= dt;
-    while (car_timer < 0) {
-      car_timer += car_reset;
-      sim.add_car();
-    }
 
     window.clear(sf::Color::White);
     sim.draw(window);
