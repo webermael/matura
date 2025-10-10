@@ -19,7 +19,7 @@ class Astar {
   std::map<Node*, node_properties> explored_nodes;
   std::vector<Node*> active_nodes;
   float time_searching;
-  bool active;
+  bool active = false;
 
   void reset(Node* start_node, Node* end_node) {
     start = start_node;
@@ -32,37 +32,38 @@ class Astar {
     active = true;
   }
 
-  Astar(Node* start_node, Node* end_node)
-      : start(start_node),
-        end(end_node),
-        explored_nodes() {  // in initializer list to avoid default construction
-    reset(start_node, end_node);
+  Astar()
+      : explored_nodes() {  // in initializer list to avoid default construction
   }
 
   float get_dot_product(Node* node, Way* way, std::string direction) {
     Way* old_way = explored_nodes[node].path.back();
-    sf::Vector2f old_node = old_way->nodes.at(old_way->nodes.size() - 2)->pos;
-    sf::Vector2f first_node = way->nodes[1]->pos;
-    sf::Vector2f forward(first_node.x - node->pos.x,
-                         first_node.y - node->pos.y);
-    sf::Vector2f backward = get_target_vector(
-        direction,
-        sf::Vector2f{node->pos.x - old_node.x, node->pos.y - old_node.y});
+    sf::Vector2<double> old_node =
+        old_way->nodes.at(old_way->nodes.size() - 2)->pos;
+    sf::Vector2<double> first_node = way->nodes[1]->pos;
+    sf::Vector2<double> forward(first_node.x - node->pos.x,
+                                first_node.y - node->pos.y);
+    sf::Vector2<double> backward = get_target_vector(
+        direction, sf::Vector2<double>{node->pos.x - old_node.x,
+                                       node->pos.y - old_node.y});
     return dot_product(forward, backward);
   }
 
-  sf::Vector2f get_target_vector(std::string direction, sf::Vector2f vector) {
+  sf::Vector2<double> get_target_vector(std::string direction,
+                                        sf::Vector2<double> vector) {
     // rotate target vector according to direction given
     if (direction == "through") {
       return vector;
     } else if (direction == "left") {
-      return sf::Vector2f(-vector.y, vector.x);
+      return sf::Vector2<double>(-vector.y, vector.x);
     } else if (direction == "right") {
-      return sf::Vector2f(vector.y, -vector.x);
+      return sf::Vector2<double>(vector.y, -vector.x);
+    } else {
+      return vector;
     }
   }
 
-  float dot_product(sf::Vector2f v1, sf::Vector2f v2) {
+  float dot_product(sf::Vector2<double> v1, sf::Vector2<double> v2) {
     return (v1.x * v2.x + v1.y * v2.y) /
            (std::sqrtf(std::powf(v1.x, 2.0f) + std::powf(v1.y, 2.0f)) +
             std::sqrtf(std::powf(v2.x, 2.0f) + std::powf(v2.y, 2.0f)));
@@ -75,7 +76,7 @@ class Astar {
       return;
     }
 
-    if (explored_nodes.count(end) > 0 || active_nodes.empty()) {
+    if (explored_nodes.count(end) != 0 || active_nodes.empty()) {
       active = false;
       return;
     }
@@ -97,25 +98,26 @@ class Astar {
     }
 
     for (Way* way : node->ways_out) {
-      float dot_product = -1.0f;
+      float dot_product = 1.0f;
       if (!explored_nodes[node].path.empty() &&
           !explored_nodes[node].path.back()->turns.empty()) {
         dot_product = -1.0f;
         for (auto direction : explored_nodes[node].path.back()->turns) {
-          dot_product = 0.0f;  // check out, use sf::dot ?
+          dot_product =
+              std::max(dot_product, get_dot_product(node, way, direction));
         }
-        if (dot_product > 0.5f) {
-          Node* new_node = way->nodes.back();
-          if (explored_nodes.count(new_node) > 0 ||
-              (explored_nodes.count(new_node) > 0 &&
-               (explored_nodes[node].weight + way->length) <
-                   explored_nodes[new_node].weight)) {
-            active_nodes.push_back(new_node);
-            std::vector<Way*> path_ways(explored_nodes[node].path);
-            path_ways.push_back(way);
-            explored_nodes[new_node] = {
-                explored_nodes[node].weight + way->length, path_ways};
-          }
+      }
+      if (dot_product > 0.5f) {
+        Node* new_node = way->nodes.back();
+        if (explored_nodes.count(new_node) == 0 ||
+            (explored_nodes.count(new_node) > 0 &&
+             (explored_nodes[node].weight + way->length) <
+                 explored_nodes[new_node].weight)) {
+          active_nodes.push_back(new_node);
+          std::vector<Way*> path_ways(explored_nodes[node].path);
+          path_ways.push_back(way);
+          explored_nodes[new_node] = {explored_nodes[node].weight + way->length,
+                                      path_ways};
         }
       }
     }
@@ -126,19 +128,44 @@ class Astar {
     // time_searching += (time.perf_counter() - start);
   }
 
-  void render(sf::RenderWindow window) {
+  void render(sf::RenderTexture& surface, Display& display) {
+    surface.clear(sf::Color::Transparent);
     for (const auto& node : explored_nodes) {
       sf::CircleShape node_shape(5.0f);
-      node_shape.setPosition(node.first->display_pos);
+      node_shape.setOrigin(2.5f, 2.5f);
+      node_shape.setPosition(display.plot.to_screen_space(node.first->pos));
       node_shape.setFillColor({250, 150, 0});
-      window.draw(node_shape);
+      surface.draw(node_shape);
+    }
+    for (const auto& node : active_nodes) {
+      sf::CircleShape node_shape(5.0f);
+      node_shape.setOrigin(2.5f, 2.5f);
+      node_shape.setPosition(display.plot.to_screen_space(node->pos));
+      node_shape.setFillColor({0, 150, 150});
+      surface.draw(node_shape);
+    }
+
+    if (explored_nodes.count(end)) {
+      for (const auto& way : explored_nodes[end].path) {
+        sf::CircleShape node_shape(5.0f);
+        node_shape.setOrigin(2.5f, 2.5f);
+        node_shape.setPosition(
+            display.plot.to_screen_space(way->nodes[0]->pos));
+        node_shape.setFillColor({250, 0, 250});
+        surface.draw(node_shape);
+      }
     }
     sf::CircleShape start_shape(5.0f), end_shape(5.0f);
-    start_shape.setPosition(start->display_pos);
-    start_shape.setFillColor({255, 0, 0});
-    window.draw(start_shape);
-    end_shape.setPosition(end->display_pos);
+
+    start_shape.setOrigin(2.5f, 2.5f);
+    end_shape.setOrigin(2.5f, 2.5f);
+    end_shape.setPosition(display.plot.to_screen_space(end->pos));
     end_shape.setFillColor({0, 255, 0});
-    window.draw(end_shape);
+    surface.draw(end_shape);
+
+    start_shape.setOrigin(2.5f, 2.5f);
+    start_shape.setPosition(display.plot.to_screen_space(start->pos));
+    start_shape.setFillColor({255, 0, 0});
+    surface.draw(start_shape);
   }
 };
