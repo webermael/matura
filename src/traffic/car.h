@@ -269,7 +269,7 @@ class Car {
     float turn_multiplier = _turn_lookahead();
     float car_multiplier = _car_lookahead(car_surface, display);
     State state =
-        _set_speed(dt, std::min(1.f, turn_multiplier, car_multiplier));
+        _set_speed(dt, std::min({1.f, turn_multiplier, car_multiplier}));
     _set_color(highlight, state);
     _move(dt);
   }
