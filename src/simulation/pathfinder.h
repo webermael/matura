@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 
+#include "../utils/settings.h"
 #include "node.h"
 #include "way.h"
 
@@ -12,7 +13,7 @@ struct node_properties {
   std::vector<Way*> path;
 };
 
-class Astar {
+class Pathfinder {
  public:
   Node* start;
   Node* end;
@@ -20,8 +21,9 @@ class Astar {
   std::vector<Node*> active_nodes;
   float time_searching;
   bool active = false;
+  PathFinding pathfinding_mode = ASTAR;
 
-  void reset(Node* start_node, Node* end_node) {
+  void reset(Node* start_node, Node* end_node, SimSettings settings) {
     start = start_node;
     end = end_node;
     explored_nodes.clear();
@@ -30,9 +32,10 @@ class Astar {
     active_nodes.push_back(start);
     time_searching = 0.0f;
     active = true;
+    pathfinding_mode = settings.pathfinding;
   }
 
-  Astar()
+  Pathfinder()
       : explored_nodes() {  // in initializer list to avoid default construction
   }
 
@@ -85,9 +88,14 @@ class Astar {
     Node* node = nullptr;
 
     for (Node* node_check : active_nodes) {
-      float dist = std::powf(explored_nodes[node_check].weight, 2.0f) +
-                   std::hypot(node_check->pos.x - end->pos.x,
-                              node_check->pos.y - end->pos.y);
+      float dist;
+      if (pathfinding_mode == ASTAR) {
+        dist = std::powf(explored_nodes[node_check].weight, 2.0f) +
+               std::hypot(node_check->pos.x - end->pos.x,
+                          node_check->pos.y - end->pos.y);
+      } else if (pathfinding_mode == DIJKSTRA) {
+        dist = explored_nodes[node_check].weight;
+      }
       if (dist < min_dist) {
         min_dist = dist;
         node = node_check;
