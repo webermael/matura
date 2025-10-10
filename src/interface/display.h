@@ -4,6 +4,7 @@
 #include "../simulation/car.h"
 #include "../simulation/node.h"
 #include "../simulation/way.h"
+#include "../utils/event_handler.h"
 #include "plot.h"
 
 enum RECT_EDGES { TOP, LEFT, BOTTOM, RIGHT };
@@ -18,6 +19,7 @@ class Display {
   sf::Sprite road_sprite;
   sf::RenderTexture car_texture;
   sf::RenderTexture ui_texture;
+  sf::Color road_color = {70, 70, 70};
   Display(const Plot& plot) : plot(plot), rect_value(4) {
     road_texture.create(plot.screen_size.x, plot.screen_size.y);
     car_texture.create(plot.screen_size.x, plot.screen_size.y);
@@ -65,27 +67,28 @@ class Display {
     }
   }
 
-  void reset_view(std::vector<Node>& nodes, std::vector<Way>& ways) {
+  void reset_view(std::vector<Node>& nodes, std::vector<Way>& ways,
+                  VisualSettings settings) {
     // reset values to values from import
     plot.reset_values();
     // display the map
     road_texture.clear(sf::Color::Black);
     for (auto& way : ways) {
       draw_polyline(way, 7.f * plot.scale * (float)way.lanes,
-                    sf::Color(100, 100, 100));
+                    settings.road_color);
     }
     road_sprite = sf::Sprite(road_texture.getTexture());
   }
 
   void set_view(std::vector<Node>& nodes, std::vector<Way>& ways,
-                std::vector<float>& rect_value) {
+                std::vector<float>& rect_value, VisualSettings settings) {
     // set the display parameters
     plot.set_values(rect_value[0], rect_value[1], rect_value[2], rect_value[3]);
     // display the map
     road_texture.clear(sf::Color::Black);
     for (auto& way : ways) {
       draw_polyline(way, 7.f * plot.scale * (float)way.lanes,
-                    sf::Color(100, 100, 100));
+                    settings.road_color);
     }
     road_sprite = sf::Sprite(road_texture.getTexture());
   }
@@ -131,27 +134,26 @@ class Display {
     window.draw(ui_sprite);
   }
 
-  void update(sf::Vector2i mouse_pos, bool left_mouse_pressed,
-              bool left_mouse_just_pressed, bool left_mouse_just_released,
-              std::vector<Node>& nodes, std::vector<Way>& ways) {
+  void update(InputState input, std::vector<Node>& nodes,
+              std::vector<Way>& ways, VisualSettings settings) {
     ui_texture.clear(sf::Color::Transparent);
     // while button down, show rectangle
-    if (left_mouse_pressed) {
-      if (!selecting && left_mouse_just_pressed &&
-          mouse_pos.x <= road_texture.getSize().x) {
+    if (input.left_mouse_pressed) {
+      if (!selecting && input.left_mouse_just_pressed &&
+          input.mouse_pos.x <= road_texture.getSize().x) {
         // if mouse pos is on the display and freshly pressed, start selecting
         selecting = true;
-        selection_start = mouse_pos;
+        selection_start = input.mouse_pos;
       }
       if (selecting) {
-        calc_rect_value(mouse_pos);
+        calc_rect_value(input.mouse_pos);
       }
     }
-    if (left_mouse_just_released) {
+    if (input.left_mouse_just_released) {
       // when mouse is released, apply new values
       if (selecting) {
         selecting = false;
-        set_view(nodes, ways, rect_value);
+        set_view(nodes, ways, rect_value, settings);
       }
     }
   }

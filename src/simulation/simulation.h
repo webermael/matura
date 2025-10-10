@@ -11,6 +11,7 @@
 
 #include "../interface/display.h"
 #include "../utils/event_handler.h"
+#include "../utils/settings.h"
 #include "car.h"
 
 using json = nlohmann::json;
@@ -20,14 +21,16 @@ class Simulation {
   std::vector<Node> nodes;
   std::unordered_map<std::string, std::size_t> id_to_index;
   std::vector<Way> ways;
-  Astar astar;
+  Pathfinder pathfinder;
   std::vector<Node*> start_nodes;
   std::vector<Node*> end_nodes;
   std::vector<std::unique_ptr<Car>> cars = {};
-  std::vector<std::vector<Way*>> paths;
+  std::vector<std::vector<Way*>> astar_paths;
+  std::vector<std::vector<Way*>> dijkstra_paths;
   std::unique_ptr<Plot> plot;        // delayed construction
   std::unique_ptr<Display> display;  // delayed construction
-  bool mouse_just_pressed = false;
+  float car_timer = settings.sim.car_spawn_time;
+  Settings settings;
 
   Simulation(std::string json_path, sf::Vector2u screen_size) {
     json file_content(import_json(json_path));
@@ -36,7 +39,7 @@ class Simulation {
     node_way_coupling();
     plot = std::make_unique<Plot>(screen_size, file_content["bounds"]);
     display = std::make_unique<Display>(*plot);
-    display->reset_view(nodes, ways);
+    display->reset_view(nodes, ways, settings.visual);
     astar_node_setup();
   }
 
@@ -104,44 +107,64 @@ class Simulation {
     }
   }
 
-  void astar_update(int step_count) {  // run 10 steps of A*
-    if (astar.active) {
-      for (size_t i = 0; i < step_count; i++) {
-        astar.step();
+  void astar_update() {  // run 10 steps of A*
+    if (pathfinder.active) {
+      for (size_t i = 0; i < settings.sim.pathfinder_step_count; i++) {
+        pathfinder.step();
       }
     } else {
       // if new path is found, add to list
-      if (astar.explored_nodes.count(astar.end) &&
+      std::vector<std::vector<Way*>>& paths =
+          (pathfinder.pathfinding_mode == PathFinding::ASTAR) ? astar_paths
+                                                              : dijkstra_paths;
+      if (pathfinder.explored_nodes.count(pathfinder.end) &&
           !std::count(paths.begin(), paths.end(),
-                      astar.explored_nodes[astar.end].path) &&
-          !(astar.start == astar.end)) {
-        paths.push_back(astar.explored_nodes[astar.end].path);
+                      pathfinder.explored_nodes[pathfinder.end].path) &&
+          !(pathfinder.start == pathfinder.end)) {
+        paths.push_back(pathfinder.explored_nodes[pathfinder.end].path);
       }
       // start next search
-      astar.reset(start_nodes[rand() % start_nodes.size()],
-                  end_nodes[rand() % end_nodes.size()]);
+      pathfinder.reset(start_nodes[rand() % start_nodes.size()],
+                       end_nodes[rand() % end_nodes.size()], settings.sim);
     }
   }
 
-  void add_car() {
-    if (paths.size() > 0) {
-      std::vector<Way*> path = paths[rand() % paths.size()];
-      cars.emplace_back(std::make_unique<Car>(path));
+  void car_spawning(InputState input) {
+    car_timer -= input.dt;
+    std::vector<std::vector<Way*>>& paths =
+        (settings.sim.pathfinding == PathFinding::ASTAR) ? astar_paths
+                                                         : dijkstra_paths;
+    while (car_timer < 0) {
+      car_timer += settings.sim.car_spawn_time;
+      if (paths.size() > 0) {
+        std::vector<Way*> path = paths[rand() % paths.size()];
+        cars.emplace_back(std::make_unique<Car>(path, settings));
+      }
+    }
+  }
+
+  void clear_cars() {
+    cars.clear();
+    // clean up references inside ways
+    for (auto& way : ways) {
+      way.cars.clear();
     }
   }
 
   void update(InputState input) {
+    input.dt *= settings.sim.game_speed;
     if (input.escape_pressed) {
-      display->reset_view(nodes, ways);
+      display->reset_view(nodes, ways, settings.visual);
     }
-    display->update(input.mouse_pos, input.left_mouse_pressed,
-                    input.left_mouse_just_pressed,
-                    input.left_mouse_just_released, nodes, ways);
-    astar_update(10);
+    display->update(input, nodes, ways, settings.visual);
+    astar_update();
     // --- CARS ---
+
+    // add cars based on timer
+    car_spawning(input);
     // update
     for (auto& car : cars) {
-      car->update(input.dt, ACCELERATION);
+      car->update(input.dt, settings);
     }
     // Remove inactive
     cars.erase(std::remove_if(cars.begin(), cars.end(),

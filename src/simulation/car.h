@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
+#include "../utils/settings.h"
 #include "node.h"
 #include "way.h"
 
@@ -11,8 +12,6 @@ struct new_target {
   bool end_of_path;
 };
 
-enum State { BRAKE, ACCELERATE, COAST, CRUISE, STANDSTILL };
-enum Highlight { ACCELERATION, SPEED };
 class Car {
  public:
   sf::Vector2<double> pos;
@@ -29,16 +28,19 @@ class Car {
   sf::Vector2<double> direction;
   bool active = true;
   sf::Color color;
-  Car(std::vector<Way*> path) : path(path) {
+  Car(std::vector<Way*> path, Settings settings) : path(path) {
     pos = path[0]->nodes[0]->pos;
     target_pos = path[0]->nodes[1]->pos;
-    speed = path[0]->speed;
     target_speed = path[0]->speed;
     node_index = 1;
     curr_way = path[0];
     curr_way->add_car(this);
     direction = get_direction(pos, target_pos, get_dist(pos, target_pos));
-    set_color(ACCELERATION, COAST);
+    // set start speed
+    float turn_multiplier = turn_lookahead(settings.driving);
+    float car_multiplier = car_lookahead(settings.driving);
+    speed = target_speed * std::min({1.f, turn_multiplier, car_multiplier});
+    set_color(settings.visual, COAST);
   }
   // distance between two points
   float get_dist(sf::Vector2<double> pos1, sf::Vector2<double> pos2) {
@@ -59,7 +61,7 @@ class Car {
     return dot_product(vector1, vector2);
   }
   // change speed and return current state
-  State set_speed(float dt, float multiplier) {
+  State set_speed(float dt, float multiplier, DriveSettings settings) {
     State state = COAST;
     float target = target_speed * multiplier;
     // set immediately on very small difference
@@ -83,12 +85,13 @@ class Car {
       speed += accel * dt;
       state = ACCELERATE;
     }
-    speed = std::max(0.f, speed);  // clamp to positive value
+    speed =
+        std::clamp(speed, 0.f, settings.speed_cap);  // clamp to positive value
     return state;
   }
   // sets the current color depending on highlight mode and values
-  void set_color(Highlight highlight, State state) {
-    switch (highlight) {
+  void set_color(VisualSettings settings, State state) {
+    switch (settings.highlight_mode) {
       case ACCELERATION:
         switch (state) {
           case CRUISE:
@@ -104,7 +107,7 @@ class Car {
             color = sf::Color{150, 100, 0};
             break;
           case STANDSTILL:
-            color = sf::Color{50, 50, 150};
+            color = settings.car_color;
             break;
           default:
             break;
@@ -115,6 +118,9 @@ class Car {
             static_cast<sf::Uint8>(std::clamp(255.f - speed * 2.f, 0.f, 255.f)),
             static_cast<sf::Uint8>(std::clamp(50.f + speed * 4.f, 0.f, 255.f)),
             0};
+        break;
+      case OFF:
+        color = settings.car_color;
         break;
       default:
         break;
@@ -200,7 +206,7 @@ class Car {
     }
   }
 
-  float turn_lookahead() {
+  float turn_lookahead(DriveSettings settings) {
     float max_dist = speed * 5;
     float lookahead = max_dist - get_dist(pos, target_pos);
     float curvature = 0;
@@ -226,10 +232,10 @@ class Car {
       end = nt.end_of_path;
       lookahead -= get_dist(old_node, node);
     }
-    return 1.f / (1.f + curvature * 0.75);
+    return 1.f / (1.f + curvature * settings.curvature_slowdown);
   }
 
-  float car_lookahead() {
+  float car_lookahead(DriveSettings settings) {
     Car* next_car = nullptr;
 
     // Check current way
@@ -254,20 +260,24 @@ class Car {
       }
     }
     if (next_car) {
-      return 1 - ((speed) / (1 + get_dist(pos, next_car->pos)));
+      float target_gap = settings.car_gap_target;
+      if (settings.multiply_by_speed) {
+        target_gap *= speed;
+      }
+      return 1 - (target_gap / (1 + get_dist(pos, next_car->pos)));
     }
     return 1.f;
   }
 
-  void update(float dt, Highlight highlight) {
+  void update(float dt, Settings settings) {
     if (!active) {
       return;
     }
-    float turn_multiplier = turn_lookahead();
-    float car_multiplier = car_lookahead();
-    State state =
-        set_speed(dt, std::min({1.f, turn_multiplier, car_multiplier}));
-    set_color(highlight, state);
+    float turn_multiplier = turn_lookahead(settings.driving);
+    float car_multiplier = car_lookahead(settings.driving);
+    State state = set_speed(
+        dt, std::min({1.f, turn_multiplier, car_multiplier}), settings.driving);
+    set_color(settings.visual, state);
     move(dt);
   }
 };
