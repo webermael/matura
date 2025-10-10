@@ -195,7 +195,9 @@ int main() {
             road_surface, way,
             7.f * display.plot.scale * (float)way.lanes +
                 display.plot.scale * 3.f,
-            sf::Color(std::min(255ull, (way.cars.size() * 50)), 100, 100));
+            sf::Color(static_cast<sf::Uint8>(std::clamp<std::size_t>(
+                          way.cars.size() * 50, 0, 255)),
+                      100, 100));
       } else {
         display.draw_polyline(road_surface, way,
                               7.f * display.plot.scale * (float)way.lanes,
