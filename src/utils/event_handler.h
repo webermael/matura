@@ -1,4 +1,7 @@
 #pragma once
+#include <imgui-SFML.h>
+#include <imgui.h>
+
 #include <SFML/Graphics.hpp>
 
 struct InputState {
@@ -6,6 +9,7 @@ struct InputState {
   bool left_mouse_just_pressed = false;
   bool left_mouse_just_released = false;
   bool escape_pressed = false;
+  bool camera_settings_changed = false;
   sf::Vector2i mouse_pos;
   float dt;
 };
@@ -17,6 +21,7 @@ void handle_events(sf::RenderWindow& window, InputState& input) {
 
   sf::Event event;
   while (window.pollEvent(event)) {
+    ImGui::SFML::ProcessEvent(window, event);
     switch (event.type) {
       case sf::Event::Closed:
         window.close();
