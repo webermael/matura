@@ -13,6 +13,7 @@
 #include "../utils/event_handler.h"
 #include "../utils/settings.h"
 #include "car.h"
+#include "pathfinder.h"
 
 using json = nlohmann::json;
 
@@ -30,6 +31,7 @@ class Simulation {
   std::unique_ptr<Plot> plot;        // delayed construction
   std::unique_ptr<Display> display;  // delayed construction
   float car_timer = settings.sim.car_spawn_time;
+  bool paused = false;
   Settings settings;
 
   Simulation(std::string json_path, sf::Vector2u screen_size) {
@@ -39,7 +41,6 @@ class Simulation {
     node_way_coupling();
     plot = std::make_unique<Plot>(screen_size, file_content["bounds"]);
     display = std::make_unique<Display>(*plot);
-    display->reset_view(nodes, ways, settings.visual);
     astar_node_setup();
   }
 
@@ -136,7 +137,7 @@ class Simulation {
                                                          : dijkstra_paths;
     while (car_timer < 0) {
       car_timer += settings.sim.car_spawn_time;
-      if (paths.size() > 0) {
+      if (paths.size() > 0 && cars.size() < settings.sim.car_cap) {
         std::vector<Way*> path = paths[rand() % paths.size()];
         cars.emplace_back(std::make_unique<Car>(path, settings));
       }
@@ -152,11 +153,15 @@ class Simulation {
   }
 
   void update(InputState input) {
-    input.dt *= settings.sim.game_speed;
-    if (input.escape_pressed) {
-      display->reset_view(nodes, ways, settings.visual);
+    if (paused) {
+      input.dt = 0;
+    } else {
+      input.dt *= settings.sim.game_speed;
     }
-    display->update(input, nodes, ways, settings.visual);
+    if (input.escape_pressed) {
+      display->reset_view(ways, settings.visual);
+    }
+    display->update(input, ways, settings.visual);
     astar_update();
     // --- CARS ---
 
@@ -180,9 +185,9 @@ class Simulation {
     }
   }
 
-  void draw(sf::RenderWindow& window) {
-    display->draw_cars(cars);
-    display->draw_selection_rect();
-    display->draw_to_window(window);
+  void draw(sf::RenderWindow& window, InputState& input) {
+    display->draw(start_nodes, end_nodes, ways, pathfinder, cars, settings,
+                  input);
+    display->push_to_window(window);
   }
 };

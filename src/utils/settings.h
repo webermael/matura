@@ -15,6 +15,7 @@ struct DriveSettings {
 struct SimSettings {
   float game_speed = 1.f;
   float car_spawn_time = 0.5f;
+  int car_cap = 2000;
   PathFinding pathfinding = ASTAR;
   int pathfinder_step_count = 10;
 };
@@ -22,10 +23,18 @@ struct SimSettings {
 struct VisualSettings {
   Highlight highlight_mode = OFF;
   sf::Color road_color = sf::Color{60, 60, 60};
+  float road_width = 7.f;
+  float max_road_width = 7.f;
   sf::Color car_color = {140, 130, 150};
+  bool draw_cars = true;
 };
 
-struct DebugSettings {};
+struct DebugSettings {
+  bool draw_node_connections = false;
+  bool draw_pathfinder = false;
+  bool draw_start_nodes = false;
+  bool draw_end_nodes = false;
+};
 
 struct Settings {
   DriveSettings driving;
