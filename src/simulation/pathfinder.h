@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <cmath>
@@ -40,6 +42,8 @@ class Pathfinder {
   }
 
   float get_dot_product(Node* node, Way* way, std::string direction) {
+    // dot product of vector into node in "direction" and vector out of node
+    // requires a way leading out of node
     Way* old_way = explored_nodes[node].path.back();
     sf::Vector2<double> old_node =
         old_way->nodes.at(old_way->nodes.size() - 2)->pos;
@@ -68,7 +72,7 @@ class Pathfinder {
 
   float dot_product(sf::Vector2<double> v1, sf::Vector2<double> v2) {
     return (v1.x * v2.x + v1.y * v2.y) /
-           (std::sqrtf(std::powf(v1.x, 2.0f) + std::powf(v1.y, 2.0f)) +
+           (std::sqrtf(std::powf(v1.x, 2.0f) + std::powf(v1.y, 2.0f)) *
             std::sqrtf(std::powf(v2.x, 2.0f) + std::powf(v2.y, 2.0f)));
   }
 
@@ -80,7 +84,7 @@ class Pathfinder {
     }
 
     if (explored_nodes.count(end) != 0 || active_nodes.empty()) {
-      active = false;
+      active = false;  // finish when end found or no more places to go
       return;
     }
 
@@ -90,15 +94,17 @@ class Pathfinder {
     for (Node* node_check : active_nodes) {
       float dist;
       if (pathfinding_mode == ASTAR) {
+        // with added heuristic -> distance to end node
         dist = std::powf(explored_nodes[node_check].weight, 2.0f) +
                std::hypot(node_check->pos.x - end->pos.x,
                           node_check->pos.y - end->pos.y);
       } else if (pathfinding_mode == DIJKSTRA) {
+        // just weight so far
         dist = explored_nodes[node_check].weight;
       }
       if (dist < min_dist) {
         min_dist = dist;
-        node = node_check;
+        node = node_check;  // pick node with lowest cost
       }
     }
     if (!node) {
@@ -109,14 +115,18 @@ class Pathfinder {
       float dot_product = 1.0f;
       if (!explored_nodes[node].path.empty() &&
           !explored_nodes[node].path.back()->turns.empty()) {
+        // if there are turnrestrictions
         dot_product = -1.0f;
         for (auto direction : explored_nodes[node].path.back()->turns) {
           dot_product =
               std::max(dot_product, get_dot_product(node, way, direction));
+          // only allow a path if it meets one of the directions well enough
         }
       }
-      if (dot_product > 0.5f) {
+      if (dot_product > 0.6f) {
         Node* new_node = way->nodes.back();
+        // add node to be explored if unexplored or already found but with
+        // higher weight
         if (explored_nodes.count(new_node) == 0 ||
             (explored_nodes.count(new_node) > 0 &&
              (explored_nodes[node].weight + way->length) <
@@ -129,51 +139,10 @@ class Pathfinder {
         }
       }
     }
-
+    // remove node that was checked
     active_nodes.erase(
         std::remove(active_nodes.begin(), active_nodes.end(), node),
         active_nodes.end());
     // time_searching += (time.perf_counter() - start);
-  }
-
-  void render(sf::RenderTexture& surface, Display& display) {
-    surface.clear(sf::Color::Transparent);
-    for (const auto& node : explored_nodes) {
-      sf::CircleShape node_shape(5.0f);
-      node_shape.setOrigin(2.5f, 2.5f);
-      node_shape.setPosition(display.plot.to_screen_space(node.first->pos));
-      node_shape.setFillColor({250, 150, 0});
-      surface.draw(node_shape);
-    }
-    for (const auto& node : active_nodes) {
-      sf::CircleShape node_shape(5.0f);
-      node_shape.setOrigin(2.5f, 2.5f);
-      node_shape.setPosition(display.plot.to_screen_space(node->pos));
-      node_shape.setFillColor({0, 150, 150});
-      surface.draw(node_shape);
-    }
-
-    if (explored_nodes.count(end)) {
-      for (const auto& way : explored_nodes[end].path) {
-        sf::CircleShape node_shape(5.0f);
-        node_shape.setOrigin(2.5f, 2.5f);
-        node_shape.setPosition(
-            display.plot.to_screen_space(way->nodes[0]->pos));
-        node_shape.setFillColor({250, 0, 250});
-        surface.draw(node_shape);
-      }
-    }
-    sf::CircleShape start_shape(5.0f), end_shape(5.0f);
-
-    start_shape.setOrigin(2.5f, 2.5f);
-    end_shape.setOrigin(2.5f, 2.5f);
-    end_shape.setPosition(display.plot.to_screen_space(end->pos));
-    end_shape.setFillColor({0, 255, 0});
-    surface.draw(end_shape);
-
-    start_shape.setOrigin(2.5f, 2.5f);
-    start_shape.setPosition(display.plot.to_screen_space(start->pos));
-    start_shape.setFillColor({255, 0, 0});
-    surface.draw(start_shape);
   }
 };

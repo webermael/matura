@@ -40,7 +40,7 @@ class Car {
     float turn_multiplier = turn_lookahead(settings.driving);
     float car_multiplier = car_lookahead(settings.driving);
     speed = target_speed * std::min({1.f, turn_multiplier, car_multiplier});
-    set_color(settings.visual, COAST);
+    set_color(settings, COAST);
   }
   // distance between two points
   float get_dist(sf::Vector2<double> pos1, sf::Vector2<double> pos2) {
@@ -63,7 +63,12 @@ class Car {
   // change speed and return current state
   State set_speed(float dt, float multiplier, DriveSettings settings) {
     State state = COAST;
-    float target = target_speed * multiplier;
+    float target;
+    if (settings.use_road_maxspeed) {
+      target = target_speed * multiplier;
+    } else {
+      target = settings.speed_cap * multiplier;
+    }
     // set immediately on very small difference
     if (abs(speed - target) < 0.03) {
       speed = target;
@@ -85,13 +90,14 @@ class Car {
       speed += accel * dt;
       state = ACCELERATE;
     }
-    speed =
-        std::clamp(speed, 0.f, settings.speed_cap);  // clamp to positive value
+    speed = std::clamp(
+        speed, 0.f,
+        static_cast<float>(settings.speed_cap));  // clamp to positive value
     return state;
   }
   // sets the current color depending on highlight mode and values
-  void set_color(VisualSettings settings, State state) {
-    switch (settings.highlight_mode) {
+  void set_color(Settings settings, State state) {
+    switch (settings.visual.highlight_mode) {
       case ACCELERATION:
         switch (state) {
           case CRUISE:
@@ -107,20 +113,33 @@ class Car {
             color = sf::Color{150, 100, 0};
             break;
           case STANDSTILL:
-            color = settings.car_color;
+            color = settings.visual.car_color;
             break;
           default:
             break;
         }
         break;
       case SPEED:
-        color = sf::Color{
-            static_cast<sf::Uint8>(std::clamp(255.f - speed * 2.f, 0.f, 255.f)),
-            static_cast<sf::Uint8>(std::clamp(50.f + speed * 4.f, 0.f, 255.f)),
-            0};
+        if (settings.visual.highlight_speedcap_weight) {
+          color = sf::Color{
+              // weight color by global speed cap
+              static_cast<sf::Uint8>(std::clamp(
+                  255.f - (speed / settings.driving.speed_cap) * 255.f, 0.f,
+                  255.f)),
+              static_cast<sf::Uint8>(std::clamp(
+                  50.f + (speed / settings.driving.speed_cap) * 255.f, 0.f,
+                  255.f)),
+              0};
+        } else {
+          color = sf::Color{static_cast<sf::Uint8>(
+                                std::clamp(255.f - speed * 2.f, 0.f, 255.f)),
+                            static_cast<sf::Uint8>(
+                                std::clamp(50.f + speed * 4.f, 0.f, 255.f)),
+                            0};
+        }
         break;
       case OFF:
-        color = settings.car_color;
+        color = settings.visual.car_color;
         break;
       default:
         break;
@@ -262,7 +281,7 @@ class Car {
     if (next_car) {
       float target_gap = settings.car_gap_target;
       if (settings.multiply_by_speed) {
-        target_gap *= speed;
+        target_gap *= std::max(10.f, speed);
       }
       return 1 - (target_gap / (1 + get_dist(pos, next_car->pos)));
     }
@@ -277,7 +296,7 @@ class Car {
     float car_multiplier = car_lookahead(settings.driving);
     State state = set_speed(
         dt, std::min({1.f, turn_multiplier, car_multiplier}), settings.driving);
-    set_color(settings.visual, state);
+    set_color(settings, state);
     move(dt);
   }
 };

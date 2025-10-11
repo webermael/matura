@@ -17,6 +17,7 @@ class Plot {
   float scale;
 
   void reset_values() {
+    // set values so the entire map is on screen
     translation = {bounds["west"], bounds["south"]};
     graph_size = {bounds["east"] - bounds["west"],
                   bounds["north"] - bounds["south"]};
@@ -48,6 +49,7 @@ class Plot {
   }
 
   void set_values(float top, float left, float bottom, float right) {
+    // set new values from screen_space coordinates
     sf::Vector2<double> temp_translation;
     sf::Vector2<double> temp_corner;
     if (std::abs(bottom - top) > 0 && std::abs(right - left) > 0) {

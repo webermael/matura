@@ -13,6 +13,7 @@
 #include "../utils/event_handler.h"
 #include "../utils/settings.h"
 #include "car.h"
+#include "pathfinder.h"
 
 using json = nlohmann::json;
 
@@ -25,12 +26,13 @@ class Simulation {
   std::vector<Node*> start_nodes;
   std::vector<Node*> end_nodes;
   std::vector<std::unique_ptr<Car>> cars = {};
-  std::vector<std::vector<Way*>> astar_paths;
-  std::vector<std::vector<Way*>> dijkstra_paths;
+  std::vector<std::vector<Way*>> paths;
   std::unique_ptr<Plot> plot;        // delayed construction
   std::unique_ptr<Display> display;  // delayed construction
-  float car_timer = settings.sim.car_spawn_time;
+  bool paused = false;
+  bool car_spawning = true;
   Settings settings;
+  float car_timer = settings.sim.car_spawn_time;
 
   Simulation(std::string json_path, sf::Vector2u screen_size) {
     json file_content(import_json(json_path));
@@ -39,8 +41,7 @@ class Simulation {
     node_way_coupling();
     plot = std::make_unique<Plot>(screen_size, file_content["bounds"]);
     display = std::make_unique<Display>(*plot);
-    display->reset_view(nodes, ways, settings.visual);
-    astar_node_setup();
+    pathfinder_node_setup();
   }
 
   json import_json(std::string file_path) {
@@ -71,7 +72,7 @@ class Simulation {
 
         std::vector<Node*> segment_nodes;  // pointer vector
         segment_nodes.reserve(segment.size());
-        // pick out right node segment
+        // pick out correct node segment
         for (const auto& node_id : segment) {
           size_t index = id_to_index[node_id];
           segment_nodes.push_back(&nodes[index]);
@@ -92,7 +93,8 @@ class Simulation {
     }
   }
 
-  void astar_node_setup() {
+  void pathfinder_node_setup() {
+    // create start and end node vectors
     for (size_t i = 0; i < nodes.size(); i++) {
       if (nodes[i].street_count == 2 && nodes[i].ways_out.size() == 1 &&
           (nodes[i].ways_out[0]->oneway && nodes[i].ways_in.size() == 0 ||
@@ -107,20 +109,27 @@ class Simulation {
     }
   }
 
-  void astar_update() {  // run 10 steps of A*
+  void change_pathfinder_mode(PathFinding new_mode) {
+    settings.sim.pathfinding = new_mode;
+    paths.clear();
+    pathfinder.reset(start_nodes[rand() % start_nodes.size()],
+                     end_nodes[rand() % end_nodes.size()], settings.sim);
+  }
+
+  void pathfinder_update() {
+    // run x steps of A*
     if (pathfinder.active) {
       for (size_t i = 0; i < settings.sim.pathfinder_step_count; i++) {
         pathfinder.step();
       }
     } else {
       // if new path is found, add to list
-      std::vector<std::vector<Way*>>& paths =
-          (pathfinder.pathfinding_mode == PathFinding::ASTAR) ? astar_paths
-                                                              : dijkstra_paths;
-      if (pathfinder.explored_nodes.count(pathfinder.end) &&
-          !std::count(paths.begin(), paths.end(),
-                      pathfinder.explored_nodes[pathfinder.end].path) &&
-          !(pathfinder.start == pathfinder.end)) {
+      if (pathfinder.explored_nodes.count(pathfinder.end) &&  // end reached
+          !std::count(
+              paths.begin(), paths.end(),
+              pathfinder.explored_nodes[pathfinder.end].path)  // no duplicates
+          && !(pathfinder.start ==
+               pathfinder.end)) {  // different start and end nodes
         paths.push_back(pathfinder.explored_nodes[pathfinder.end].path);
       }
       // start next search
@@ -129,14 +138,14 @@ class Simulation {
     }
   }
 
-  void car_spawning(InputState input) {
-    car_timer -= input.dt;
-    std::vector<std::vector<Way*>>& paths =
-        (settings.sim.pathfinding == PathFinding::ASTAR) ? astar_paths
-                                                         : dijkstra_paths;
+  void spawn_car(InputState input) {
+    if (car_spawning) {
+      car_timer -= input.dt;
+    }
     while (car_timer < 0) {
       car_timer += settings.sim.car_spawn_time;
-      if (paths.size() > 0) {
+      if (paths.size() > 0 && cars.size() < settings.sim.car_cap) {
+        // if paths are available, choose a random one
         std::vector<Way*> path = paths[rand() % paths.size()];
         cars.emplace_back(std::make_unique<Car>(path, settings));
       }
@@ -152,16 +161,22 @@ class Simulation {
   }
 
   void update(InputState input) {
-    input.dt *= settings.sim.game_speed;
-    if (input.escape_pressed) {
-      display->reset_view(nodes, ways, settings.visual);
+    if (paused) {
+      input.dt = 0;
+    } else {
+      input.dt *= settings.sim.game_speed;
     }
-    display->update(input, nodes, ways, settings.visual);
-    astar_update();
-    // --- CARS ---
+    if (input.escape_pressed) {
+      display->reset_view(ways, settings.visual);
+    }
+    // zoom selection
+    display->update(input, ways, settings.visual);
 
+    pathfinder_update();
+
+    // --- CARS ---
     // add cars based on timer
-    car_spawning(input);
+    spawn_car(input);
     // update
     for (auto& car : cars) {
       car->update(input.dt, settings);
@@ -180,9 +195,9 @@ class Simulation {
     }
   }
 
-  void draw(sf::RenderWindow& window) {
-    display->draw_cars(cars);
-    display->draw_selection_rect();
-    display->draw_to_window(window);
+  void draw(sf::RenderWindow& window, InputState& input) {
+    display->draw(start_nodes, end_nodes, ways, pathfinder, cars, settings,
+                  input);
+    display->push_to_window(window);
   }
 };
