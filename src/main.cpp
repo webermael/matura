@@ -30,7 +30,6 @@ int main() {
 
   // for input handling in main loop
   InputState input;
-
   // create main display window
   auto window = sf::RenderWindow(sf::VideoMode(1800, 900), "Matura");
   sf::Vector2u interface_size = {400u, window.getSize().y};
@@ -41,26 +40,22 @@ int main() {
   // Initialize ImGui-SFML
   if (!ImGui::SFML::Init(window)) {
     std::cerr << "Failed to initialize ImGui-SFML!\n";
-    return -1;  // or handle error
+    return -1;
   }
 
   // Create Simulation with json data
   Simulation sim("./src/Aarau.json", screen_size);
 
   sf::Clock clock;
-  float dt = 0.f;
-
   // --- GAME LOOP ---
   while (window.isOpen()) {
-    dt = clock.restart().asSeconds();
-    input.dt = dt;
     // - Events -
     handle_events(window, input);
 
     // - Updating -
-    ImGui::SFML::Update(window, sf::seconds(dt));
-    create_settings_menu(sim.settings, window, interface_size, sim, input);
 
+    ImGui::SFML::Update(window, sf::seconds(input.dt));
+    create_settings_menu(sim.settings, window, interface_size, sim, input);
     sim.update(input);
 
     // - Drawing -
@@ -70,6 +65,7 @@ int main() {
     ImGui::SFML::Render(window);
 
     window.display();
+    input.dt = clock.restart().asSeconds();
   }
   ImGui::SFML::Shutdown();
 };
