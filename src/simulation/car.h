@@ -262,7 +262,7 @@ class Car {
     if (next_car) {
       float target_gap = settings.car_gap_target;
       if (settings.multiply_by_speed) {
-        target_gap *= speed;
+        target_gap *= std::max(10.f, speed);
       }
       return 1 - (target_gap / (1 + get_dist(pos, next_car->pos)));
     }
