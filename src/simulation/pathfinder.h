@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <cmath>
@@ -134,46 +136,5 @@ class Pathfinder {
         std::remove(active_nodes.begin(), active_nodes.end(), node),
         active_nodes.end());
     // time_searching += (time.perf_counter() - start);
-  }
-
-  void render(sf::RenderTexture& surface, Display& display) {
-    surface.clear(sf::Color::Transparent);
-    for (const auto& node : explored_nodes) {
-      sf::CircleShape node_shape(5.0f);
-      node_shape.setOrigin(2.5f, 2.5f);
-      node_shape.setPosition(display.plot.to_screen_space(node.first->pos));
-      node_shape.setFillColor({250, 150, 0});
-      surface.draw(node_shape);
-    }
-    for (const auto& node : active_nodes) {
-      sf::CircleShape node_shape(5.0f);
-      node_shape.setOrigin(2.5f, 2.5f);
-      node_shape.setPosition(display.plot.to_screen_space(node->pos));
-      node_shape.setFillColor({0, 150, 150});
-      surface.draw(node_shape);
-    }
-
-    if (explored_nodes.count(end)) {
-      for (const auto& way : explored_nodes[end].path) {
-        sf::CircleShape node_shape(5.0f);
-        node_shape.setOrigin(2.5f, 2.5f);
-        node_shape.setPosition(
-            display.plot.to_screen_space(way->nodes[0]->pos));
-        node_shape.setFillColor({250, 0, 250});
-        surface.draw(node_shape);
-      }
-    }
-    sf::CircleShape start_shape(5.0f), end_shape(5.0f);
-
-    start_shape.setOrigin(2.5f, 2.5f);
-    end_shape.setOrigin(2.5f, 2.5f);
-    end_shape.setPosition(display.plot.to_screen_space(end->pos));
-    end_shape.setFillColor({0, 255, 0});
-    surface.draw(end_shape);
-
-    start_shape.setOrigin(2.5f, 2.5f);
-    start_shape.setPosition(display.plot.to_screen_space(start->pos));
-    start_shape.setFillColor({255, 0, 0});
-    surface.draw(start_shape);
   }
 };
