@@ -30,9 +30,10 @@ class Simulation {
   std::vector<std::vector<Way*>> dijkstra_paths;
   std::unique_ptr<Plot> plot;        // delayed construction
   std::unique_ptr<Display> display;  // delayed construction
-  float car_timer = settings.sim.car_spawn_time;
   bool paused = false;
+  bool car_spawning = true;
   Settings settings;
+  float car_timer = settings.sim.car_spawn_time;
 
   Simulation(std::string json_path, sf::Vector2u screen_size) {
     json file_content(import_json(json_path));
@@ -130,8 +131,10 @@ class Simulation {
     }
   }
 
-  void car_spawning(InputState input) {
-    car_timer -= input.dt;
+  void spawn_car(InputState input) {
+    if (car_spawning) {
+      car_timer -= input.dt;
+    }
     std::vector<std::vector<Way*>>& paths =
         (settings.sim.pathfinding == PathFinding::ASTAR) ? astar_paths
                                                          : dijkstra_paths;
@@ -166,7 +169,7 @@ class Simulation {
     // --- CARS ---
 
     // add cars based on timer
-    car_spawning(input);
+    spawn_car(input);
     // update
     for (auto& car : cars) {
       car->update(input.dt, settings);
