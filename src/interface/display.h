@@ -82,7 +82,7 @@ class Display {
   }
 
   void draw_roads(std::vector<Way>& ways, VisualSettings settings) {
-    road_texture.clear(sf::Color::Black);
+    road_texture.clear(settings.bg_color);
     for (auto& way : ways) {
       draw_polyline(way, settings.road_width * plot.scale * (float)way.lanes,
                     settings.road_color);
