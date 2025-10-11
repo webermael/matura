@@ -8,8 +8,8 @@ enum PathFinding { ASTAR, DIJKSTRA };
 struct DriveSettings {
   float car_gap_target = 1.f;
   bool multiply_by_speed = true;
-  float curvature_slowdown = 0.75f;
-  float speed_cap = INFINITY;
+  float curvature_slowdown = 0.7f;
+  int speed_cap = 200;
 };
 
 struct SimSettings {
@@ -22,11 +22,11 @@ struct SimSettings {
 
 struct VisualSettings {
   Highlight highlight_mode = OFF;
-  sf::Color road_color = sf::Color{60, 60, 60};
   float road_width = 7.f;
-  float max_road_width = 7.f;
-  sf::Color car_color = {140, 130, 150};
   bool draw_cars = true;
+  sf::Color bg_color = sf::Color{0, 0, 0};
+  sf::Color road_color = sf::Color{60, 60, 60};
+  sf::Color car_color = {140, 130, 150};
 };
 
 struct DebugSettings {
