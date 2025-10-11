@@ -11,7 +11,7 @@ struct InputState {
   bool escape_pressed = false;
   bool camera_settings_changed = false;
   sf::Vector2i mouse_pos;
-  float dt;
+  float dt = 0.f;
 };
 
 void handle_events(sf::RenderWindow& window, InputState& input) {
