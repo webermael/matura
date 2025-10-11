@@ -85,8 +85,9 @@ class Car {
       speed += accel * dt;
       state = ACCELERATE;
     }
-    speed =
-        std::clamp(speed, 0.f, settings.speed_cap);  // clamp to positive value
+    speed = std::clamp(
+        speed, 0.f,
+        static_cast<float>(settings.speed_cap));  // clamp to positive value
     return state;
   }
   // sets the current color depending on highlight mode and values
