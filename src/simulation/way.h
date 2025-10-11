@@ -41,7 +41,7 @@ class Way {
   void remove_car(Car* car) {
     auto it = std::remove(cars.begin(), cars.end(), car);
     if (it != cars.end()) {
-      cars.erase(it, cars.end());
+      cars.erase(it, cars.end());  // remove car if it's in the list
     }
   }
 };

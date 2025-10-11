@@ -9,15 +9,12 @@ void pathfinding(Settings& settings, Simulation& sim) {
 
   if (ImGui::Combo("Pathfinding Algorithm", &current, pathfinding_names,
                    IM_ARRAYSIZE(pathfinding_names))) {
-    settings.sim.pathfinding = static_cast<PathFinding>(current);
+    sim.change_pathfinder_mode(static_cast<PathFinding>(current));
   }
   ImGui::SliderInt("Pathfinder Steps/Frame",
                    &settings.sim.pathfinder_step_count, 0, 50);
-  if (settings.sim.pathfinding == ASTAR) {
-    ImGui::Text("Path count: %zu", sim.astar_paths.size());
-  } else if (settings.sim.pathfinding == DIJKSTRA) {
-    ImGui::Text("Path count: %zu", sim.dijkstra_paths.size());
-  }
+
+  ImGui::Text("Path count: %zu", sim.paths.size());
 }
 
 void highlight_selector(Settings& settings) {
@@ -67,6 +64,8 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
     ImGui::InputInt("Global Speedcap (km/h)", &settings.driving.speed_cap, 5,
                     10);
     settings.driving.speed_cap = std::max(settings.driving.speed_cap, 0);
+    ImGui::Checkbox("Use Road Speed Limit",
+                    &settings.driving.use_road_maxspeed);
   }
 
   // --- SIMULATION SETTTINGS
@@ -76,11 +75,11 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
                       "%.2f");
     settings.sim.game_speed = std::max(settings.sim.game_speed, 0.f);
     ImGui::Checkbox("Car Spawning", &sim.car_spawning);
-    if (ImGui::SliderFloat("Car Spawn Time", &settings.sim.car_spawn_time,
-                           0.01f, 5.f, "%.2f")) {
+    if (ImGui::SliderFloat("Car Spawn Time (s)", &settings.sim.car_spawn_time,
+                           0.01f, 1.f, "%.2f")) {
       sim.car_timer = settings.sim.car_spawn_time;
     }
-    ImGui::InputInt("Car Count Cap", &settings.sim.car_cap, 0, 10000);
+    ImGui::InputInt("Car Count Cap", &settings.sim.car_cap, 25, 100);
     ImGui::Text("Car Count: %d", sim.cars.size());
     if (ImGui::Button("Clear Cars", ImVec2(100.f, 40.f))) {
       sim.clear_cars();
@@ -91,6 +90,8 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
   // VISUAL SETTINGS
   if (ImGui::CollapsingHeader("Visual Settings")) {
     highlight_selector(settings);
+    ImGui::Checkbox("Weight Speed Highlight by Speed Cap",
+                    &settings.visual.highlight_speedcap_weight);
     ImGui::Checkbox("Draw Cars", &settings.visual.draw_cars);
     ColorEditor("Background Color", settings.visual.bg_color, input);
     ColorEditor("Road Color", settings.visual.road_color, input);

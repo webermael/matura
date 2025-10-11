@@ -9,14 +9,15 @@ struct InputState {
   bool left_mouse_just_pressed = false;
   bool left_mouse_just_released = false;
   bool escape_pressed = false;
+  // on any zoom/visual change to the roads
   bool camera_settings_changed = false;
   sf::Vector2i mouse_pos;
   float dt = 0.f;
 };
 
 void handle_events(sf::RenderWindow& window, InputState& input) {
-  input.left_mouse_just_pressed = false;
-  input.left_mouse_just_released = false;  // reset each frame
+  input.left_mouse_just_pressed = false;  // reset each frame
+  input.left_mouse_just_released = false;
   input.escape_pressed = false;
 
   sf::Event event;

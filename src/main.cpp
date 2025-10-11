@@ -53,17 +53,16 @@ int main() {
     handle_events(window, input);
 
     // - Updating -
-
     ImGui::SFML::Update(window, sf::seconds(input.dt));
     create_settings_menu(sim.settings, window, interface_size, sim, input);
     sim.update(input);
 
     // - Drawing -
     window.clear(sf::Color::White);
-
     sim.draw(window, input);
     ImGui::SFML::Render(window);
 
+    // - Finish Frame -
     window.display();
     input.dt = clock.restart().asSeconds();
   }

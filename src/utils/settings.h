@@ -9,6 +9,7 @@ struct DriveSettings {
   float car_gap_target = 1.f;
   bool multiply_by_speed = true;
   float curvature_slowdown = 0.7f;
+  bool use_road_maxspeed = true;
   int speed_cap = 200;
 };
 
@@ -22,6 +23,7 @@ struct SimSettings {
 
 struct VisualSettings {
   Highlight highlight_mode = OFF;
+  bool highlight_speedcap_weight = false;
   float road_width = 7.f;
   bool draw_cars = true;
   sf::Color bg_color = sf::Color{0, 0, 0};

@@ -43,6 +43,7 @@ class Display {
     float size = 6.f * plot.scale;
     sf::RectangleShape shape(
         sf::Vector2f(std::max(size, 3.f), std::max(size, 3.f) / 2));
+    // use minimum size so they are visible enough in the big picture
     for (auto& car : cars) {
       // offset to the right side
       shape.setOrigin(std::max(size, 3.f) / 2,
@@ -61,6 +62,7 @@ class Display {
     if (way.nodes.size() < 2) {
       return;
     }
+    // guarantee lines to be visible
     thickness = std::max(1.0f, thickness);
     for (size_t i = 1; i < way.nodes.size(); i++) {
       sf::Vector2f pos1 = plot.to_screen_space(way.nodes[i - 1]->pos);
@@ -102,8 +104,10 @@ class Display {
   }
 
   void debug_draw_nodes(std::vector<Node*> nodes, sf::Color color) {
-    sf::CircleShape node_shape(3.f);
-    node_shape.setOrigin(1.5f, 1.5f);
+    // draw the input group of nodes with color
+    sf::CircleShape node_shape(std::max(1.5f, 6.f * plot.scale));
+    node_shape.setOrigin(std::max(1.5f, 6.f * plot.scale),
+                         std::max(1.5f, 6.f * plot.scale));
     node_shape.setFillColor(color);
     for (auto& node : nodes) {
       node_shape.setPosition(plot.to_screen_space(node->pos));
@@ -116,19 +120,20 @@ class Display {
     node_shape.setOrigin(2.5f, 2.5f);
     for (const auto& node : pathfinder.explored_nodes) {
       node_shape.setPosition(plot.to_screen_space(node.first->pos));
-      node_shape.setFillColor({250, 150, 0});
+      node_shape.setFillColor({250, 150, 0});  // orange explored nodes
       dynamic_debug_texture.draw(node_shape);
     }
     for (const auto& node : pathfinder.active_nodes) {
       node_shape.setPosition(plot.to_screen_space(node->pos));
-      node_shape.setFillColor({0, 150, 150});
+      node_shape.setFillColor({0, 150, 150});  // cyan active nodes
       dynamic_debug_texture.draw(node_shape);
     }
 
     if (pathfinder.explored_nodes.count(pathfinder.end)) {
       for (const auto& way : pathfinder.explored_nodes[pathfinder.end].path) {
         node_shape.setPosition(plot.to_screen_space(way->nodes[0]->pos));
-        node_shape.setFillColor({250, 0, 250});
+        node_shape.setFillColor(
+            {250, 0, 250});  // purple start to end path nodes
         dynamic_debug_texture.draw(node_shape);
       }
     }
@@ -191,6 +196,7 @@ class Display {
   void static_debug_draw(std::vector<Node*> start_nodes,
                          std::vector<Node*> end_nodes, std::vector<Way>& ways,
                          Settings& settings) {
+    // debugs that stay in same position/are bound to the roads
     static_debug_texture.clear(sf::Color::Transparent);
     if (settings.debug.draw_node_connections) {
       debug_draw_node_connections(ways);
@@ -205,6 +211,7 @@ class Display {
   }
 
   void dynamic_debug_draw(Pathfinder pathfinder, Settings& settings) {
+    // debug for things that move
     dynamic_debug_texture.clear(sf::Color::Transparent);
     if (settings.debug.draw_pathfinder) {
       debug_draw_pathfinder(pathfinder);
@@ -218,10 +225,11 @@ class Display {
     if (camera_moved || input.camera_settings_changed) {
       camera_moved = false;
       input.camera_settings_changed = false;
-
+      // update statics if camera changes
       draw_roads(ways, settings.visual);
       static_debug_draw(start_nodes, end_nodes, ways, settings);
     }
+    // dynamic Textures
     draw_cars(cars, settings.visual);
     draw_selection_rect();
     dynamic_debug_draw(pathfinder, settings);
