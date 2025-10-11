@@ -70,7 +70,7 @@ class Pathfinder {
 
   float dot_product(sf::Vector2<double> v1, sf::Vector2<double> v2) {
     return (v1.x * v2.x + v1.y * v2.y) /
-           (std::sqrtf(std::powf(v1.x, 2.0f) + std::powf(v1.y, 2.0f)) +
+           (std::sqrtf(std::powf(v1.x, 2.0f) + std::powf(v1.y, 2.0f)) *
             std::sqrtf(std::powf(v2.x, 2.0f) + std::powf(v2.y, 2.0f)));
   }
 
@@ -117,7 +117,7 @@ class Pathfinder {
               std::max(dot_product, get_dot_product(node, way, direction));
         }
       }
-      if (dot_product > 0.5f) {
+      if (dot_product > 0.6f) {
         Node* new_node = way->nodes.back();
         if (explored_nodes.count(new_node) == 0 ||
             (explored_nodes.count(new_node) > 0 &&
