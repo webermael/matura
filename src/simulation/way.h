@@ -18,6 +18,7 @@ class Way {
   std::vector<Node*> nodes;
   std::vector<Car*> cars;
   float length;
+  bool blocked = false;
 
   Way(std::string id, int index, bool oneway, int lanes,
       std::vector<std::string> turns, int speed, std::vector<Node*>& nodes,
