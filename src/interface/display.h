@@ -6,6 +6,7 @@
 #include "../simulation/pathfinder.h"
 #include "../simulation/way.h"
 #include "../utils/event_handler.h"
+#include "../utils/settings.h"
 #include "plot.h"
 
 enum RECT_EDGES { TOP, LEFT, BOTTOM, RIGHT };
@@ -58,12 +59,16 @@ class Display {
     }
   }
 
-  void draw_polyline(Way& way, float thickness, sf::Color color) {
+  void draw_polyline(Way& way, float thickness, sf::Color color,
+                     sf::RenderTexture& texture, bool blocked = false) {
     if (way.nodes.size() < 2) {
       return;
     }
     // guarantee lines to be visible
     thickness = std::max(1.0f, thickness);
+    if (blocked) {
+      thickness *= 0.5;
+    }
     for (size_t i = 1; i < way.nodes.size(); i++) {
       sf::Vector2f pos1 = plot.to_screen_space(way.nodes[i - 1]->pos);
       sf::Vector2f pos2 = plot.to_screen_space(way.nodes[i]->pos);
@@ -75,11 +80,16 @@ class Display {
 
       sf::RectangleShape segment(sf::Vector2f(length, thickness));
       segment.setFillColor(color);
-      segment.setOrigin(0.f, thickness / 2.f);  // center line vertically
+      if (blocked) {
+        segment.setOrigin(0.f, thickness);
+      } else {
+        segment.setOrigin(0.f, thickness / 2.f);  // center line vertically
+      }
+
       segment.setPosition((sf::Vector2f)pos1);
       segment.setRotation(angle);
 
-      road_texture.draw(segment);
+      texture.draw(segment);
     }
   }
 
@@ -87,7 +97,14 @@ class Display {
     road_texture.clear(settings.bg_color);
     for (auto& way : ways) {
       draw_polyline(way, settings.road_width * plot.scale * (float)way.lanes,
-                    settings.road_color);
+                    settings.road_color, road_texture);
+    }
+    // draw blocked roads on top
+    for (auto& way : ways) {
+      if (way.blocked) {
+        draw_polyline(way, settings.road_width * plot.scale * (float)way.lanes,
+                      settings.blocked_road_color, road_texture, true);
+      }
     }
     road_sprite = sf::Sprite(road_texture.getTexture());
   }
@@ -103,7 +120,7 @@ class Display {
     }
   }
 
-  void debug_draw_nodes(std::vector<Node*> nodes, sf::Color color) {
+  void draw_nodes(const std::vector<Node*>& nodes, sf::Color color) {
     // draw the input group of nodes with color
     sf::CircleShape node_shape(std::max(1.5f, 6.f * plot.scale));
     node_shape.setOrigin(std::max(1.5f, 6.f * plot.scale),
@@ -178,7 +195,7 @@ class Display {
     rect_value[RIGHT] = r;
   }
 
-  void draw_selection_rect() {
+  void draw_zoom_rect() {
     if (!selecting) {
       return;
     }
@@ -202,10 +219,10 @@ class Display {
       debug_draw_node_connections(ways);
     }
     if (settings.debug.draw_start_nodes) {
-      debug_draw_nodes(start_nodes, sf::Color(180, 0, 0));
+      draw_nodes(start_nodes, sf::Color(180, 0, 0));
     }
     if (settings.debug.draw_end_nodes) {
-      debug_draw_nodes(end_nodes, sf::Color(0, 180, 0));
+      draw_nodes(end_nodes, sf::Color(0, 180, 0));
     }
     static_debug_sprite = sf::Sprite(static_debug_texture.getTexture());
   }
@@ -218,10 +235,41 @@ class Display {
     }
   }
 
+  void selection_draw(Settings& settings, std::vector<Node>& nodes) {
+    sf::CircleShape node_shape(std::max(1.5f, 6.f * plot.scale));
+    node_shape.setOrigin(std::max(1.5f, 6.f * plot.scale),
+                         std::max(1.5f, 6.f * plot.scale));
+    if (settings.selection.active) {
+      for (auto node : settings.selection.eligible_nodes) {
+        node_shape.setPosition(plot.to_screen_space(node->pos));
+        // no selected node
+        if (node == settings.selection.closest_node) {
+          node_shape.setFillColor(sf::Color(0, 100, 200));
+        } else if (settings.selection.start_node != nullptr &&
+                   node == settings.selection.start_node) {
+          node_shape.setFillColor(sf::Color(0, 200, 100));
+        } else if (settings.selection.end_node != nullptr &&
+                   node == settings.selection.end_node) {
+          node_shape.setFillColor(sf::Color(200, 0, 100));
+        } else {
+          node_shape.setFillColor(sf::Color(100, 0, 0));
+        }
+        ui_texture.draw(node_shape);
+      }
+      // draw selected way
+      if (settings.selection.selected_way) {
+        draw_polyline(*settings.selection.selected_way,
+                      settings.visual.road_width * plot.scale *
+                          (float)settings.selection.selected_way->lanes,
+                      sf::Color(50, 200, 100), ui_texture);
+      }
+    }
+  }
+
   void draw(std::vector<Node*> start_nodes, std::vector<Node*> end_nodes,
-            std::vector<Way>& ways, Pathfinder pathfinder,
-            std::vector<std::unique_ptr<Car>>& cars, Settings& settings,
-            InputState& input) {
+            std::vector<Node>& nodes, std::vector<Way>& ways,
+            Pathfinder pathfinder, std::vector<std::unique_ptr<Car>>& cars,
+            Settings& settings, InputState& input) {
     if (camera_moved || input.camera_settings_changed) {
       camera_moved = false;
       input.camera_settings_changed = false;
@@ -231,7 +279,8 @@ class Display {
     }
     // dynamic Textures
     draw_cars(cars, settings.visual);
-    draw_selection_rect();
+    draw_zoom_rect();
+    selection_draw(settings, nodes);
     dynamic_debug_draw(pathfinder, settings);
   }
 
@@ -243,8 +292,63 @@ class Display {
     window.draw(sf::Sprite(dynamic_debug_texture.getTexture()));
   }
 
-  void update(InputState input, std::vector<Way>& ways,
-              VisualSettings settings) {
+  void node_selection_update(Settings& settings, std::vector<Node>& nodes,
+                             std::vector<Way>& ways,
+                             InputState input) {  // Node/Way selection handling
+    if (settings.selection.active) {
+      settings.selection.eligible_nodes.clear();
+      if (settings.selection.start_node == nullptr) {
+        for (auto& node : nodes) {  // every node
+          if (node.ways_out.size() > 0) {
+            settings.selection.eligible_nodes.push_back(&node);
+          }
+        }
+      } else {  // only neighboring nodes
+        for (auto& way : settings.selection.start_node->ways_out) {
+          settings.selection.eligible_nodes.push_back(way->nodes.back());
+        }  // and start node
+        settings.selection.eligible_nodes.push_back(
+            settings.selection.start_node);
+      }
+      float min_dist = INFINITY;
+      sf::Vector2<double> real_mouse_pos(
+          plot.from_screen_space(sf::Vector2f(input.mouse_pos)));
+      // get the closest node to mouse
+      for (auto& node : settings.selection.eligible_nodes) {
+        if (hypot(real_mouse_pos.x - node->pos.x,
+                  real_mouse_pos.y - node->pos.y) < min_dist) {
+          min_dist = hypot(real_mouse_pos.x - node->pos.x,
+                           real_mouse_pos.y - node->pos.y);
+          settings.selection.closest_node = node;
+        }
+      }
+      // handle right click
+      if (input.right_mouse_just_pressed &&
+          input.mouse_pos.x < road_texture.getSize().x) {
+        if (settings.selection.start_node == nullptr) {  // set to closest
+          settings.selection.start_node = settings.selection.closest_node;
+        } else if (settings.selection.start_node ==
+                   settings.selection.closest_node) {  // reset
+          settings.selection.start_node = nullptr;
+        } else {  // set end node
+          settings.selection.end_node = settings.selection.closest_node;
+          for (auto& way : ways) {
+            if (way.nodes.front()->id == settings.selection.start_node->id &&
+                way.nodes.back()->id == settings.selection.end_node->id) {
+              settings.selection.selected_way = &way;
+              break;
+            }
+          }
+          if (settings.selection.selected_way == nullptr) {
+            settings.selection = SelectionSettings{};
+          }
+        }
+      }
+    }
+  }
+
+  void update(InputState input, std::vector<Node>& nodes,
+              std::vector<Way>& ways, Settings& settings) {
     ui_texture.clear(sf::Color::Transparent);
     // while button down, show rectangle
     if (input.left_mouse_pressed) {
@@ -262,8 +366,13 @@ class Display {
       // when mouse is released, apply new values
       if (selecting) {
         selecting = false;
-        set_view(ways, rect_value, settings);
+        set_view(ways, rect_value, settings.visual);
       }
+    }
+    if (settings.selection.selected_way == nullptr) {
+      node_selection_update(settings, nodes, ways, input);
+    } else {
+      settings.selection.eligible_nodes.clear();
     }
   }
 };
