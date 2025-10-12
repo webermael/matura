@@ -13,7 +13,8 @@ class Way {
   int index;
   bool oneway;
   int lanes;
-  std::vector<std::string> turns;
+  std::vector<std::vector<std::string>> turn_lanes;
+  std::vector<std::string> turn_restrictions;
   int speed;
   std::vector<Node*> nodes;
   std::vector<Car*> cars;
@@ -21,13 +22,15 @@ class Way {
   bool blocked = false;
 
   Way(std::string id, int index, bool oneway, int lanes,
-      std::vector<std::string> turns, int speed, std::vector<Node*>& nodes,
-      float length)
+      std::vector<std::vector<std::string>> turn_lanes,
+      std::vector<std::string> turn_restrictions, int speed,
+      std::vector<Node*>& nodes, float length)
       : id(id),
         index(index),
         oneway(oneway),
         lanes(lanes),
-        turns(turns),
+        turn_lanes(turn_lanes),
+        turn_restrictions(turn_restrictions),
         speed(speed),
         nodes(nodes),
         length(length) {}

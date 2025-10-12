@@ -21,7 +21,7 @@ def parse_turn_lanes(turn_lanes_tag):
     Empty list [] means unrestricted (car can go any direction).
     """
     if not turn_lanes_tag:
-        return []  # no info → unrestricted
+        return []  # no info -> unrestricted
     lanes = []
     for lane in turn_lanes_tag.split("|"):
         lane = lane.strip().lower()

@@ -79,8 +79,8 @@ class Simulation {
         }
 
         ways.emplace_back(way_id, i, way["oneway"], way["lanes"],
-                          way["turns"][i], way["speed"], segment_nodes,
-                          way["weights"][i]);
+                          way["turn_lanes"], way["turn_restrictions"],
+                          way["speed"], segment_nodes, way["length"][i]);
       }
     }
   }
