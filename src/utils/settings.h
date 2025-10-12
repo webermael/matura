@@ -1,6 +1,9 @@
 #pragma once
 #include <cmath>
 
+#include "../simulation/node.h"
+#include "../simulation/way.h"
+
 enum Highlight { ACCELERATION, SPEED, OFF };
 enum State { BRAKE, ACCELERATE, COAST, CRUISE, STANDSTILL };
 enum PathFinding { ASTAR, DIJKSTRA };
@@ -28,6 +31,7 @@ struct VisualSettings {
   bool draw_cars = true;
   sf::Color bg_color = sf::Color{0, 0, 0};
   sf::Color road_color = sf::Color{60, 60, 60};
+  sf::Color blocked_road_color = sf::Color(200, 50, 100);
   sf::Color car_color = {140, 130, 150};
 };
 
@@ -38,9 +42,19 @@ struct DebugSettings {
   bool draw_end_nodes = false;
 };
 
+struct SelectionSettings {
+  bool active = false;
+  Node* closest_node = nullptr;
+  Node* start_node = nullptr;
+  Node* end_node = nullptr;
+  std::vector<Node*> eligible_nodes = {};
+  Way* selected_way = nullptr;
+};
+
 struct Settings {
   DriveSettings driving;
   DebugSettings debug;
   SimSettings sim;
   VisualSettings visual;
+  SelectionSettings selection;
 };
