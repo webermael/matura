@@ -24,6 +24,7 @@ class Pathfinder {
   float time_searching;
   bool active = false;
   PathFinding pathfinding_mode = ASTAR;
+  std::vector<std::string> path_turns;
 
   void reset(Node* start_node, Node* end_node, SimSettings settings) {
     start = start_node;
@@ -34,6 +35,7 @@ class Pathfinder {
     active_nodes.push_back(start);
     time_searching = 0.0f;
     active = true;
+    std::vector<std::string> path_turns = {};
     pathfinding_mode = settings.pathfinding;
   }
 
@@ -41,18 +43,47 @@ class Pathfinder {
       : explored_nodes() {  // in initializer list to avoid default construction
   }
 
+  void create_path_turns() {
+    for (size_t i = 0; i < explored_nodes[end].path.size() - 1; ++i) {
+      Way* current = explored_nodes[end].path[i];
+      Way* next = explored_nodes[end].path[i + 1];
+
+      // Calculate vectors between current->next
+      sf::Vector2<double> vector1 =
+          current->nodes.back()->pos -
+          current->nodes[current->nodes.size() - 2]->pos;
+      sf::Vector2<double> vector2 = next->nodes[1]->pos - next->nodes[0]->pos;
+
+      float dp = dot_product(vector1, vector2);
+
+      // Simple threshold to decide turn
+      std::string turn;
+      if (dp > 0.5f) {
+        turn = "through";
+      } else {
+        float cross = vector1.x * vector2.y - vector1.y * vector2.x;
+        turn = (cross > 0) ? "left" : "right";
+      }
+
+      path_turns.push_back(turn);
+    }
+  }
+
   float get_dot_product(Node* node, Way* way, std::string direction) {
     // dot product of vector into node in "direction" and vector out of node
     // requires a way leading out of node
     Way* old_way = explored_nodes[node].path.back();
+    // get positions
     sf::Vector2<double> old_node =
         old_way->nodes.at(old_way->nodes.size() - 2)->pos;
     sf::Vector2<double> first_node = way->nodes[1]->pos;
+    // turn them into vectors (with correct direction)
     sf::Vector2<double> forward(first_node.x - node->pos.x,
                                 first_node.y - node->pos.y);
     sf::Vector2<double> backward = get_target_vector(
         direction, sf::Vector2<double>{node->pos.x - old_node.x,
                                        node->pos.y - old_node.y});
+    // get their dot product
     return dot_product(forward, backward);
   }
 
@@ -85,6 +116,9 @@ class Pathfinder {
 
     if (explored_nodes.count(end) != 0 || active_nodes.empty()) {
       active = false;  // finish when end found or no more places to go
+      if (explored_nodes.count(end) != 0 && !explored_nodes[end].path.empty()) {
+        create_path_turns();
+      }
       return;
     }
 
@@ -110,21 +144,32 @@ class Pathfinder {
     if (!node) {
       return;
     }
-
     for (Way* way : node->ways_out) {
       if (!way->blocked) {
         float dot_product = 1.0f;
-        if (!explored_nodes[node].path.empty() &&
-            !explored_nodes[node].path.back()->turns.empty()) {
-          // if there are turnrestrictions
-          dot_product = -1.0f;
-          for (auto direction : explored_nodes[node].path.back()->turns) {
-            dot_product =
-                std::max(dot_product, get_dot_product(node, way, direction));
-            // only allow a path if it meets one of the directions well enough
+        bool allowed = true;
+        if (!explored_nodes[node].path.empty()) {
+          if (!explored_nodes[node].path.back()->turn_restrictions.empty()) {
+            // if there are turnrestrictions
+            dot_product = -1.0f;
+
+            for (auto direction :
+                 explored_nodes[node].path.back()->turn_restrictions) {
+              dot_product =
+                  std::max(dot_product, get_dot_product(node, way, direction));
+              // only allow a path if it meets one of the directions well enough
+            }
+            if (dot_product < 0.6f) {
+              allowed = false;
+            }
+          } else {
+            // if no specification, only allow non 180 turns...
+            if (get_dot_product(node, way, "through") < -0.75) {
+              allowed = false;
+            };
           }
         }
-        if (dot_product > 0.6f) {
+        if (allowed) {
           Node* new_node = way->nodes.back();
           // add node to be explored if unexplored or already found but with
           // higher weight
@@ -136,7 +181,8 @@ class Pathfinder {
             std::vector<Way*> path_ways(explored_nodes[node].path);
             path_ways.push_back(way);
             explored_nodes[new_node] = {
-                explored_nodes[node].weight + way->length, path_ways};
+                explored_nodes[node].weight + way->length / way->speed,
+                path_ways};
           }
         }
       }
