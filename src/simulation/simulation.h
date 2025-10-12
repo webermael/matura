@@ -116,6 +116,11 @@ class Simulation {
                      end_nodes[rand() % end_nodes.size()], settings.sim);
   }
 
+  void reset_pathfinder() {
+    pathfinder.reset(start_nodes[rand() % start_nodes.size()],
+                     end_nodes[rand() % end_nodes.size()], settings.sim);
+  }
+
   void pathfinder_update() {
     // run x steps of A*
     if (pathfinder.active) {
@@ -133,8 +138,7 @@ class Simulation {
         paths.push_back(pathfinder.explored_nodes[pathfinder.end].path);
       }
       // start next search
-      pathfinder.reset(start_nodes[rand() % start_nodes.size()],
-                       end_nodes[rand() % end_nodes.size()], settings.sim);
+      reset_pathfinder();
     }
   }
 
@@ -160,6 +164,20 @@ class Simulation {
     }
   }
 
+  void clear_blockades() {
+    paths.clear();
+    reset_pathfinder();
+    for (auto& way : ways) {
+      way.blocked = false;
+    }
+  }
+
+  void block_way(Way* way) {
+    paths.clear();
+    reset_pathfinder();
+    way->blocked = !way->blocked;
+  }
+
   void update(InputState input) {
     if (paused) {
       input.dt = 0;
@@ -170,7 +188,7 @@ class Simulation {
       display->reset_view(ways, settings.visual);
     }
     // zoom selection
-    display->update(input, ways, settings.visual);
+    display->update(input, nodes, ways, settings);
 
     pathfinder_update();
 
@@ -196,8 +214,8 @@ class Simulation {
   }
 
   void draw(sf::RenderWindow& window, InputState& input) {
-    display->draw(start_nodes, end_nodes, ways, pathfinder, cars, settings,
-                  input);
+    display->draw(start_nodes, end_nodes, nodes, ways, pathfinder, cars,
+                  settings, input);
     display->push_to_window(window);
   }
 };
