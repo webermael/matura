@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 
+#include "../simulation/node.h"
 #include "../simulation/simulation.h"
 #include "../utils/settings.h"
 
@@ -81,8 +82,13 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
     }
     ImGui::InputInt("Car Count Cap", &settings.sim.car_cap, 25, 100);
     ImGui::Text("Car Count: %d", sim.cars.size());
-    if (ImGui::Button("Clear Cars", ImVec2(100.f, 40.f))) {
+    if (ImGui::Button("Clear Cars", ImVec2(120.f, 25.f))) {
       sim.clear_cars();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear Blockades", ImVec2(120.f, 25.f))) {
+      sim.clear_blockades();
+      input.camera_settings_changed = true;
     }
     pathfinding(settings, sim);
   }
@@ -95,6 +101,8 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
     ImGui::Checkbox("Draw Cars", &settings.visual.draw_cars);
     ColorEditor("Background Color", settings.visual.bg_color, input);
     ColorEditor("Road Color", settings.visual.road_color, input);
+    ColorEditor("Blocked Road Color", settings.visual.blocked_road_color,
+                input);
     ColorEditor("Car Color", settings.visual.car_color, input);
   }
 
@@ -109,5 +117,50 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
       input.camera_settings_changed = true;
     }
   }
+
+  // SELECTION SETTINGS
+  if (ImGui::CollapsingHeader("Selection Settings")) {
+    ImGui::Checkbox("Selection Mode", &settings.selection.active);
+    if (settings.selection.start_node) {
+      ImGui::Text("Start Node %s:", settings.selection.start_node->id.c_str());
+      ImGui::Text("  Pos: (%.2f, %.2f)", settings.selection.start_node->pos.x,
+                  settings.selection.start_node->pos.y);
+    }
+    if (settings.selection.end_node) {
+      ImGui::Text("End Node %s:", settings.selection.end_node->id.c_str());
+      ImGui::Text("  Pos: (%.2f, %.2f)", settings.selection.end_node->pos.x,
+                  settings.selection.end_node->pos.y);
+    }
+
+    if (settings.selection.selected_way) {
+      bool clear_selection = false;
+
+      ImGui::Text("Way %s:", settings.selection.selected_way->id.c_str());
+      ImGui::Text("  Index in Osm Way: %d",
+                  settings.selection.selected_way->index);
+      ImGui::Text("  Speed Limit: %d", settings.selection.selected_way->speed);
+      if (ImGui::Button("Deselect Way", ImVec2(120, 25))) {
+        clear_selection = true;
+      }
+      ImGui::SameLine();
+      std::string label;
+      if (settings.selection.selected_way->blocked) {
+        label = "Unblock Way";
+      } else {
+        label = "Block Way";
+      }
+      if (ImGui::Button(label.c_str(), ImVec2(120, 25))) {
+        sim.block_way(settings.selection.selected_way);
+        clear_selection = true;
+        input.camera_settings_changed = true;
+      }
+      // clear afterwards to avoid nullptr referencing
+      if (clear_selection) {
+        settings.selection = SelectionSettings{};
+        settings.selection.active = true;
+      }
+    }
+  }
+
   ImGui::End();
 }
