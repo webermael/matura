@@ -60,13 +60,13 @@ class Display {
   }
 
   void draw_polyline(Way& way, float thickness, sf::Color color,
-                     sf::RenderTexture& texture, bool blocked = false) {
+                     sf::RenderTexture& texture) {
     if (way.nodes.size() < 2) {
       return;
     }
     // guarantee lines to be visible
-    thickness = std::max(1.0f, thickness);
-    if (blocked) {
+    thickness = std::max(2.0f, thickness * plot.scale * (float)way.lanes);
+    if (way.lanes > 1 && !way.oneway) {
       thickness *= 0.5;
     }
     for (size_t i = 1; i < way.nodes.size(); i++) {
@@ -80,7 +80,7 @@ class Display {
 
       sf::RectangleShape segment(sf::Vector2f(length, thickness));
       segment.setFillColor(color);
-      if (blocked) {
+      if (way.lanes > 1 && !way.oneway) {
         segment.setOrigin(0.f, thickness);
       } else {
         segment.setOrigin(0.f, thickness / 2.f);  // center line vertically
@@ -96,14 +96,14 @@ class Display {
   void draw_roads(std::vector<Way>& ways, VisualSettings settings) {
     road_texture.clear(settings.bg_color);
     for (auto& way : ways) {
-      draw_polyline(way, settings.road_width * plot.scale * (float)way.lanes,
-                    settings.road_color, road_texture);
+      draw_polyline(way, settings.road_width, settings.road_color,
+                    road_texture);
     }
     // draw blocked roads on top
     for (auto& way : ways) {
       if (way.blocked) {
-        draw_polyline(way, settings.road_width * plot.scale * (float)way.lanes,
-                      settings.blocked_road_color, road_texture, true);
+        draw_polyline(way, settings.road_width, settings.blocked_road_color,
+                      road_texture);
       }
     }
     road_sprite = sf::Sprite(road_texture.getTexture());
@@ -259,9 +259,8 @@ class Display {
       // draw selected way
       if (settings.selection.selected_way) {
         draw_polyline(*settings.selection.selected_way,
-                      settings.visual.road_width * plot.scale *
-                          (float)settings.selection.selected_way->lanes,
-                      sf::Color(50, 200, 100), ui_texture);
+                      settings.visual.road_width, sf::Color(50, 200, 100),
+                      ui_texture);
       }
     }
   }
