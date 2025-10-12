@@ -112,30 +112,32 @@ class Pathfinder {
     }
 
     for (Way* way : node->ways_out) {
-      float dot_product = 1.0f;
-      if (!explored_nodes[node].path.empty() &&
-          !explored_nodes[node].path.back()->turns.empty()) {
-        // if there are turnrestrictions
-        dot_product = -1.0f;
-        for (auto direction : explored_nodes[node].path.back()->turns) {
-          dot_product =
-              std::max(dot_product, get_dot_product(node, way, direction));
-          // only allow a path if it meets one of the directions well enough
+      if (!way->blocked) {
+        float dot_product = 1.0f;
+        if (!explored_nodes[node].path.empty() &&
+            !explored_nodes[node].path.back()->turns.empty()) {
+          // if there are turnrestrictions
+          dot_product = -1.0f;
+          for (auto direction : explored_nodes[node].path.back()->turns) {
+            dot_product =
+                std::max(dot_product, get_dot_product(node, way, direction));
+            // only allow a path if it meets one of the directions well enough
+          }
         }
-      }
-      if (dot_product > 0.6f) {
-        Node* new_node = way->nodes.back();
-        // add node to be explored if unexplored or already found but with
-        // higher weight
-        if (explored_nodes.count(new_node) == 0 ||
-            (explored_nodes.count(new_node) > 0 &&
-             (explored_nodes[node].weight + way->length) <
-                 explored_nodes[new_node].weight)) {
-          active_nodes.push_back(new_node);
-          std::vector<Way*> path_ways(explored_nodes[node].path);
-          path_ways.push_back(way);
-          explored_nodes[new_node] = {explored_nodes[node].weight + way->length,
-                                      path_ways};
+        if (dot_product > 0.6f) {
+          Node* new_node = way->nodes.back();
+          // add node to be explored if unexplored or already found but with
+          // higher weight
+          if (explored_nodes.count(new_node) == 0 ||
+              (explored_nodes.count(new_node) > 0 &&
+               (explored_nodes[node].weight + way->length) <
+                   explored_nodes[new_node].weight)) {
+            active_nodes.push_back(new_node);
+            std::vector<Way*> path_ways(explored_nodes[node].path);
+            path_ways.push_back(way);
+            explored_nodes[new_node] = {
+                explored_nodes[node].weight + way->length, path_ways};
+          }
         }
       }
     }
