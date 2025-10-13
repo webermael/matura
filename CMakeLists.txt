@@ -33,6 +33,16 @@ FetchContent_Declare(ImGui-SFML
         SYSTEM)
 FetchContent_MakeAvailable(ImGui-SFML)
 
+# Fetch ImGuiFileDialog
+FetchContent_Declare(
+    ImGuiFileDialog
+    GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git
+    GIT_TAG v0.6.6  # or latest stable
+    GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(ImGuiFileDialog)
+
 # json 
 FetchContent_Declare(
   json
@@ -44,7 +54,12 @@ FetchContent_MakeAvailable(json)
 
 add_executable(main src/main.cpp)
 target_compile_features(main PRIVATE cxx_std_17)
-#target_link_libraries(main PRIVATE SFML::Graphics)
 target_link_libraries(main PRIVATE ImGui-SFML::ImGui-SFML)
 target_link_libraries(main PRIVATE sfml-graphics sfml-window sfml-system)
 target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json) #json
+
+# Add ImGuiFileDialog source (important!)
+target_sources(main PRIVATE ${imguifiledialog_SOURCE_DIR}/ImGuiFileDialog.cpp)
+
+# Include its header directory
+target_include_directories(main PRIVATE ${imguifiledialog_SOURCE_DIR})
