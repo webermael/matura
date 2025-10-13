@@ -149,7 +149,8 @@ class Simulation {
     if (car_spawning) {
       car_timer -= input.dt;
     }
-    while (car_timer < 0) {
+    int spawned_so_far = 0;
+    while (car_timer < 0 && spawned_so_far <= 7) { // prevent long loops
       car_timer += settings.sim.car_spawn_time;
 
       if (paths.size() > 0 && cars.size() < settings.sim.car_cap) {
