@@ -3,6 +3,8 @@ import json
 import re
 import math
 import pyproj
+import sys
+import os
 
 
 def parse_maxspeed(speed_tag):
@@ -75,6 +77,20 @@ def get_lanes_forward(data, forward_tag, backward_tag):
 
 def split_way(edge, node_index):
     return (export["nodes"][edge["nodes"][node_index]]["street_count"] > 2)
+
+# --- ENTRY POINT ---
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        print("Usage: python osm_parser.py <City> <Country> <OutputPath>")
+        sys.exit(1)
+
+    city = sys.argv[1]
+    country = sys.argv[2]
+    output_path = sys.argv[3]
+    print(output_path)
+    print(city)
+    print(country)
+
 
 city = "Aarau, Switzerland"
 ox.settings.useful_tags_way += ["lanes",
