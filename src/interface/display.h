@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cmath>
 
 #include "../simulation/car.h"
 #include "../simulation/node.h"
@@ -41,18 +42,24 @@ class Display {
       return;
     }
     // create rectangle
-    float size = 6.f * plot.scale;
-    sf::RectangleShape shape(
-        sf::Vector2f(std::max(size, 3.f), std::max(size, 3.f) / 2));
+    float size = std::max(3.f, 6.f * plot.scale);
+    sf::RectangleShape shape(sf::Vector2f(size, size * 0.5f));
     // use minimum size so they are visible enough in the big picture
     for (auto& car : cars) {
       // offset to the right side
-      shape.setOrigin(std::max(size, 3.f) / 2,
-                      size / 4 + (((float)car->curr_way->lanes - 1) / 2) *
-                                     plot.scale * 7.f);
+      float car_offset =
+          (1.5f * plot.scale) +                       // car width center
+          (settings.road_width * plot.scale * 0.5f);  // center car on road
+      float road_offset = car->lane_index * settings.road_width * plot.scale;
+      if (car->path.ways[car->way_index]->oneway) {
+        road_offset -= car->path.ways[car->way_index]->lanes *
+                       settings.road_width * plot.scale *
+                       0.5f;  // if center move over by half the road width
+      }
+      shape.setOrigin(size / 2, car_offset + road_offset);
       // rotate according to direction
       shape.setRotation(std::atan2(car->direction.y, car->direction.x) * 180.f /
-                        static_cast<float>(M_PI));
+                        3.1415926f);
       shape.setPosition(plot.to_screen_space(car->pos));
       shape.setFillColor(car->color);
       car_texture.draw(shape);
@@ -66,9 +73,6 @@ class Display {
     }
     // guarantee lines to be visible
     thickness = std::max(2.0f, thickness * plot.scale * (float)way.lanes);
-    if (way.lanes > 1 && !way.oneway) {
-      thickness *= 0.5;
-    }
     for (size_t i = 1; i < way.nodes.size(); i++) {
       sf::Vector2f pos1 = plot.to_screen_space(way.nodes[i - 1]->pos);
       sf::Vector2f pos2 = plot.to_screen_space(way.nodes[i]->pos);
@@ -80,10 +84,10 @@ class Display {
 
       sf::RectangleShape segment(sf::Vector2f(length, thickness));
       segment.setFillColor(color);
-      if (way.lanes > 1 && !way.oneway) {
+      if (!way.oneway) {
         segment.setOrigin(0.f, thickness);
       } else {
-        segment.setOrigin(0.f, thickness / 2.f);  // center line vertically
+        segment.setOrigin(0.f, thickness * 0.5f);  // center vertically
       }
 
       segment.setPosition((sf::Vector2f)pos1);
