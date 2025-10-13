@@ -17,7 +17,7 @@ class Way {
   std::vector<std::string> turn_restrictions;
   int speed;
   std::vector<Node*> nodes;
-  std::vector<Car*> cars;
+  std::vector<std::vector<Car*>> cars;
   float length;
   bool blocked = false;
 
@@ -33,19 +33,7 @@ class Way {
         turn_restrictions(turn_restrictions),
         speed(speed),
         nodes(nodes),
-        length(length) {}
-
-  void add_car(Car* car) {
-    // prevent duplicates
-    if (std::find(cars.begin(), cars.end(), car) == cars.end()) {
-      cars.push_back(car);
-    }
-  }
-
-  void remove_car(Car* car) {
-    auto it = std::remove(cars.begin(), cars.end(), car);
-    if (it != cars.end()) {
-      cars.erase(it, cars.end());  // remove car if it's in the list
-    }
+        length(length) {
+    cars.resize(std::max(1, lanes));
   }
 };
