@@ -33,7 +33,6 @@ class Way {
         turn_restrictions(turn_restrictions),
         speed(speed),
         nodes(nodes),
-        length(length) {
-    cars.resize(std::max(1, lanes));
-  }
+        length(length),
+        cars(std::max(1, lanes)) {}
 };

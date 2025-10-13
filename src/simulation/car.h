@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <climits>
 #include <vector>
 
 #include "../utils/settings.h"
@@ -193,8 +194,9 @@ class Car {
           }
         }
       }
-    } else if (min_car_count == INT_MAX) {
-      for (size_t i = 0; i < path.ways[way]->turn_lanes.size(); i++) {
+    }
+    if (min_car_count == INT_MAX) {
+      for (size_t i = 0; i < path.ways[way]->cars.size(); i++) {
         size_t car_count = path.ways[way]->cars[i].size();
         if (car_count <= min_car_count) {
           min_car_count = static_cast<int>(car_count);
