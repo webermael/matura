@@ -58,14 +58,17 @@ def parse_turn_restrictions(lanes):
 
     return list(restriction_set)
 
-def get_lanes_forward(data):
-    if data.get("lanes:forward"):
-        return int(data.get("lanes:forward"))
+def get_lanes_forward(data, forward_tag, backward_tag):
+    if data.get(forward_tag):
+        return int(data.get(forward_tag))
     elif data.get("lanes"):
         if data["oneway"]:
             return int(data.get("lanes"))
         else:
-            return max(1, int(data.get("lanes")) // 2)
+            if data.get(backward_tag):
+                return max(1, int(data.get("lanes")) - int(data.get(backward_tag)))
+            else:
+                return max(1, int(data.get("lanes")) // 2)
     else:
         return 1
 
@@ -127,7 +130,8 @@ for start, end, data in G.edges(data=True):
                              export["nodes"][str(start)]["pos"][1] - export["nodes"][str(end)]["pos"][1]),
         "reversed": data["reversed"],
         "oneway": data.get("oneway", False),
-        "lanes": max(len(turn_lanes), get_lanes_forward(data)),
+        "lanes": max(len(turn_lanes), get_lanes_forward(data, "lanes:forward", "lanes:backward") if not data["reversed"]
+                      else get_lanes_forward(data, "lanes:backward", "lanes:forward")),
         "turn_lanes": turn_lanes,
         "turn_restrictions": parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:forward", None))) if not data["reversed"] 
         else parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:backward", None)))
