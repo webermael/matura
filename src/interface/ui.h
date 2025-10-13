@@ -28,7 +28,8 @@ void highlight_selector(Settings& settings) {
   }
 }
 
-void ColorEditor(const char* label, sf::Color& color, InputState& input) {
+void ColorEditor(const char* label, sf::Color& color, InputState& input,
+                 bool camera_changed = true) {
   // ImGui uses floats [0,1] for color components
   float col[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
 
@@ -36,7 +37,7 @@ void ColorEditor(const char* label, sf::Color& color, InputState& input) {
     color.r = static_cast<sf::Uint8>(col[0] * 255.f);
     color.g = static_cast<sf::Uint8>(col[1] * 255.f);
     color.b = static_cast<sf::Uint8>(col[2] * 255.f);
-    input.camera_settings_changed = true;
+    input.camera_settings_changed = camera_changed;
   }
 }
 
@@ -81,6 +82,7 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
       sim.car_timer = settings.sim.car_spawn_time;
     }
     ImGui::InputInt("Car Count Cap", &settings.sim.car_cap, 25, 100);
+    settings.sim.car_cap = std::max(0, settings.sim.car_cap);
     ImGui::Text("Car Count: %d", sim.cars.size());
     if (ImGui::Button("Clear Cars", ImVec2(120.f, 25.f))) {
       sim.clear_cars();
@@ -103,7 +105,7 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
     ColorEditor("Road Color", settings.visual.road_color, input);
     ColorEditor("Blocked Road Color", settings.visual.blocked_road_color,
                 input);
-    ColorEditor("Car Color", settings.visual.car_color, input);
+    ColorEditor("Car Color", settings.visual.car_color, input, false);
   }
 
   // DEBUG SETTINGS
@@ -139,6 +141,9 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
       ImGui::Text("  Index in Osm Way: %d",
                   settings.selection.selected_way->index);
       ImGui::Text("  Speed Limit: %d", settings.selection.selected_way->speed);
+      ImGui::Text("  Lane Count: %d", settings.selection.selected_way->lanes);
+      ImGui::Text("  Oneway: %s",
+                  settings.selection.selected_way->oneway ? "True" : "False");
       if (ImGui::Button("Deselect Way", ImVec2(120, 25))) {
         clear_selection = true;
       }

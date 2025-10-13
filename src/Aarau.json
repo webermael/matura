@@ -32279,7 +32279,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32308,7 +32308,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32340,7 +32340,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32384,7 +32384,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32427,7 +32427,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32473,7 +32473,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32521,7 +32521,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32567,7 +32567,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32595,7 +32595,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32624,7 +32624,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32653,7 +32653,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32686,7 +32686,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -32739,7 +32739,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33040,7 +33040,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33065,7 +33065,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33372,7 +33372,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33392,7 +33392,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33491,7 +33491,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33510,7 +33510,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33529,7 +33529,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33553,7 +33553,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33609,7 +33609,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33810,7 +33810,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [
         [
           "through"
@@ -33838,7 +33838,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33857,7 +33857,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33876,7 +33876,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33896,7 +33896,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33926,7 +33926,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -33967,8 +33967,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -33986,7 +33986,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34005,7 +34005,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34024,7 +34024,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34043,7 +34043,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34070,7 +34070,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34096,7 +34096,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34383,7 +34383,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34413,7 +34413,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34465,7 +34465,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34483,7 +34483,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34502,7 +34502,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -34932,7 +34932,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35104,7 +35104,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35124,7 +35124,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35181,7 +35181,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35199,7 +35199,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35222,7 +35222,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35245,7 +35245,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35270,7 +35270,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35399,8 +35399,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -35419,7 +35419,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35439,7 +35439,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35466,7 +35466,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35529,7 +35529,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [
         [
           "through"
@@ -35584,7 +35584,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35624,7 +35624,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -35739,7 +35739,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -36035,7 +36035,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -36056,7 +36056,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -36077,7 +36077,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -36117,7 +36117,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -36489,7 +36489,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -36754,7 +36754,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37015,7 +37015,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37042,7 +37042,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37069,7 +37069,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37098,7 +37098,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37127,7 +37127,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37146,7 +37146,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37191,7 +37191,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37212,7 +37212,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37272,7 +37272,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37485,7 +37485,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -37507,7 +37507,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -39153,7 +39153,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -39172,7 +39172,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -39211,7 +39211,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -40309,7 +40309,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -40334,7 +40334,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42530,7 +42530,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42552,7 +42552,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42810,7 +42810,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42828,7 +42828,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42846,7 +42846,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42872,7 +42872,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42899,7 +42899,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -42931,7 +42931,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -43219,7 +43219,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -43338,7 +43338,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -44077,7 +44077,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -44101,7 +44101,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -44516,7 +44516,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -44536,7 +44536,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -46418,7 +46418,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -46479,7 +46479,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -46499,7 +46499,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -46517,7 +46517,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 2,
       "turn_lanes": [
         [
           "left",
@@ -46529,8 +46529,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -46658,7 +46658,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -46684,7 +46684,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -47373,8 +47373,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -47461,7 +47461,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -49509,7 +49509,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -50667,7 +50667,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -51423,7 +51423,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -52901,7 +52901,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -52930,7 +52930,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -52959,7 +52959,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -52983,7 +52983,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -53007,7 +53007,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -53045,7 +53045,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -53063,7 +53063,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -53108,7 +53108,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -53133,7 +53133,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -55830,7 +55830,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -55891,7 +55891,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -55911,7 +55911,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -56834,7 +56834,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -56857,7 +56857,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -56946,7 +56946,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -56988,7 +56988,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -57030,7 +57030,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -57114,7 +57114,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -57176,7 +57176,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58290,7 +58290,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58389,7 +58389,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58407,7 +58407,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58683,7 +58683,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58724,7 +58724,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58743,7 +58743,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58770,7 +58770,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58798,7 +58798,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58827,7 +58827,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58855,7 +58855,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58874,7 +58874,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58893,7 +58893,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58939,7 +58939,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -58964,7 +58964,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -59026,7 +59026,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [
         [
           "left"
@@ -59587,7 +59587,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -59814,7 +59814,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -59962,7 +59962,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 3,
       "turn_lanes": [
         [
           "through"
@@ -60005,8 +60005,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -60024,7 +60024,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60166,7 +60166,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60206,7 +60206,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60229,7 +60229,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60252,7 +60252,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60271,7 +60271,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60290,7 +60290,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60316,7 +60316,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60342,7 +60342,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60365,7 +60365,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60497,7 +60497,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60577,7 +60577,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60650,7 +60650,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60779,7 +60779,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -60802,7 +60802,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61461,8 +61461,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -61480,7 +61480,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61530,7 +61530,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61549,7 +61549,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61567,7 +61567,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61587,7 +61587,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61606,7 +61606,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61626,7 +61626,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61646,7 +61646,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61695,7 +61695,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61817,7 +61817,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -61836,7 +61836,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62053,7 +62053,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 2,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62093,7 +62093,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62111,7 +62111,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62152,7 +62152,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62190,7 +62190,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62218,8 +62218,8 @@
         ]
       ],
       "turn_restrictions": [
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -62237,7 +62237,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62299,7 +62299,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62336,7 +62336,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62390,7 +62390,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62427,7 +62427,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62445,7 +62445,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62485,7 +62485,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62551,7 +62551,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62576,7 +62576,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62707,7 +62707,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62725,7 +62725,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62743,7 +62743,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62762,7 +62762,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62780,7 +62780,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62945,8 +62945,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -62965,7 +62965,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -62985,7 +62985,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -63003,7 +63003,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -63022,7 +63022,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -63040,7 +63040,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -63071,8 +63071,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -63113,7 +63113,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [
         [
           "left"
@@ -63125,8 +63125,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -63160,8 +63160,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -63213,8 +63213,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -63231,7 +63231,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [
         [
           "left",
@@ -63243,8 +63243,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -63399,7 +63399,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -63603,7 +63603,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -63706,7 +63706,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -63726,7 +63726,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64141,7 +64141,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64179,7 +64179,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64217,7 +64217,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64237,7 +64237,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64256,7 +64256,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64275,7 +64275,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64393,7 +64393,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64488,7 +64488,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64525,7 +64525,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64543,7 +64543,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64561,7 +64561,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [
         [
           "through",
@@ -64765,7 +64765,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64785,7 +64785,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64940,7 +64940,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -64959,7 +64959,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65003,7 +65003,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65070,7 +65070,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65133,7 +65133,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [
         [
           "left"
@@ -65271,7 +65271,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65534,8 +65534,8 @@
         ]
       ],
       "turn_restrictions": [
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -65570,7 +65570,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65588,7 +65588,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65665,7 +65665,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65683,7 +65683,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65721,7 +65721,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65739,7 +65739,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -65776,7 +65776,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -66041,7 +66041,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 1,
+      "lanes": 2,
       "turn_lanes": [
         [
           "through"
@@ -66162,7 +66162,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 4,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -66220,7 +66220,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -66276,8 +66276,8 @@
       ],
       "turn_restrictions": [
         "through",
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -66370,8 +66370,8 @@
         ]
       ],
       "turn_restrictions": [
-        "left",
-        "right"
+        "right",
+        "left"
       ],
       "nodes": [
         [
@@ -66406,7 +66406,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -66424,7 +66424,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -66442,7 +66442,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [
         [
           "through",
@@ -66589,7 +66589,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -66937,7 +66937,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -66975,7 +66975,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -67162,7 +67162,7 @@
       ],
       "reversed": true,
       "oneway": false,
-      "lanes": 3,
+      "lanes": 2,
       "turn_lanes": [
         [
           "left"
@@ -67264,7 +67264,7 @@
       ],
       "reversed": false,
       "oneway": false,
-      "lanes": 2,
+      "lanes": 1,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
