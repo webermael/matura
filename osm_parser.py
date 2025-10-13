@@ -58,11 +58,23 @@ def parse_turn_restrictions(lanes):
 
     return list(restriction_set)
 
+def get_lanes_forward(data):
+    if data.get("lanes:forward"):
+        return int(data.get("lanes:forward"))
+    elif data.get("lanes"):
+        if data["oneway"]:
+            return int(data.get("lanes"))
+        else:
+            return max(1, int(data.get("lanes")) // 2)
+    else:
+        return 1
+
+
 def split_way(edge, node_index):
     return (export["nodes"][edge["nodes"][node_index]]["street_count"] > 2)
 
 city = "Aarau, Switzerland"
-ox.settings.useful_tags_way += [
+ox.settings.useful_tags_way += ["lanes",
     "lanes:forward", "turn:lanes:forward",
     "lanes:backward", "turn:lanes:backward"
 ]
@@ -107,18 +119,19 @@ for start, end, data in G.edges(data=True):
     else:
         osmid = str(data["osmid"]) + "r"
     # save edge data
+    turn_lanes = parse_turn_lanes(data.get("turn:lanes:forward", None)) if not data["reversed"] else parse_turn_lanes(data.get("turn:lanes:backward", None))
     edge = {
         "nodes": [str(start), str(end)],
         "speed": parse_maxspeed(data.get("maxspeed", "50")),
         "length": math.hypot(export["nodes"][str(start)]["pos"][0] - export["nodes"][str(end)]["pos"][0],
                              export["nodes"][str(start)]["pos"][1] - export["nodes"][str(end)]["pos"][1]),
         "reversed": data["reversed"],
-        "lanes": int(data.get("lanes:forward" if not data["reversed"] else "lanes:backward", data.get("lanes", 1))),
         "oneway": data.get("oneway", False),
-        "turn_lanes": parse_turn_lanes(data.get("turn:lanes:forward", None)) if not data["reversed"]
-        else parse_turn_lanes(data.get("turn:lanes:backward", None)),
+        "lanes": max(len(turn_lanes), get_lanes_forward(data)),
+        "turn_lanes": turn_lanes,
         "turn_restrictions": parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:forward", None))) if not data["reversed"] 
         else parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:backward", None)))
+        
     }
 
     # add id with first edges data
@@ -184,7 +197,7 @@ for osmid, way_data in export["ways"].items():
     way_data.pop("edges")
 
 # output to json file
-with open("src\\graph.json", "w") as f:
+with open("src\\Aarau.json", "w") as f:
     json.dump(export, f, indent=2)
     f.close()
 
