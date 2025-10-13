@@ -26,7 +26,7 @@ class Simulation {
   std::vector<Node*> start_nodes;
   std::vector<Node*> end_nodes;
   std::vector<std::unique_ptr<Car>> cars = {};
-  std::vector<std::vector<Way*>> paths;
+  std::vector<Path> paths;
   std::unique_ptr<Plot> plot;        // delayed construction
   std::unique_ptr<Display> display;  // delayed construction
   bool paused = false;
@@ -129,13 +129,16 @@ class Simulation {
       }
     } else {
       // if new path is found, add to list
-      if (pathfinder.explored_nodes.count(pathfinder.end) &&  // end reached
-          !std::count(
-              paths.begin(), paths.end(),
-              pathfinder.explored_nodes[pathfinder.end].path)  // no duplicates
-          && !(pathfinder.start ==
-               pathfinder.end)) {  // different start and end nodes
-        paths.push_back(pathfinder.explored_nodes[pathfinder.end].path);
+      auto& new_path = pathfinder.explored_nodes[pathfinder.end].path;
+      bool already_present =
+          std::any_of(paths.begin(), paths.end(),
+                      [&](const Path& p) { return p.ways == new_path; });
+      // found the endpoint
+      if (pathfinder.explored_nodes.count(pathfinder.end) && !already_present &&
+          (pathfinder.start != pathfinder.end) &&
+          !pathfinder.explored_nodes[pathfinder.end]
+               .path.empty()) {  // different start/end node
+        paths.push_back({new_path, pathfinder.path_turns});
       }
       // start next search
       reset_pathfinder();
@@ -148,9 +151,10 @@ class Simulation {
     }
     while (car_timer < 0) {
       car_timer += settings.sim.car_spawn_time;
+
       if (paths.size() > 0 && cars.size() < settings.sim.car_cap) {
         // if paths are available, choose a random one
-        std::vector<Way*> path = paths[rand() % paths.size()];
+        Path path = paths[rand() % paths.size()];
         cars.emplace_back(std::make_unique<Car>(path, settings));
       }
     }
@@ -160,7 +164,9 @@ class Simulation {
     cars.clear();
     // clean up references inside ways
     for (auto& way : ways) {
-      way.cars.clear();
+      for (auto& lane : way.cars) {
+        lane.clear();
+      }
     }
   }
 
@@ -187,29 +193,33 @@ class Simulation {
     if (input.escape_pressed) {
       display->reset_view(ways, settings.visual);
     }
+
     // zoom selection
     display->update(input, nodes, ways, settings);
 
     pathfinder_update();
 
-    // --- CARS ---
     // add cars based on timer
     spawn_car(input);
-    // update
+    // update them
     for (auto& car : cars) {
       car->update(input.dt, settings);
     }
+
     // Remove inactive
     cars.erase(std::remove_if(cars.begin(), cars.end(),
                               [](const std::unique_ptr<Car>& car) {
                                 return !car->active;
                               }),
                cars.end());
-    // sort cars in each way according to their progress
+
+    // sort cars in each way (per lane) according to their progress
     for (auto& way : ways) {
-      std::sort(way.cars.begin(), way.cars.end(), [](Car* a, Car* b) {
-        return a->way_progress < b->way_progress;
-      });
+      for (auto& lane : way.cars) {
+        std::sort(lane.begin(), lane.end(), [](Car* a, Car* b) {
+          return a->way_progress < b->way_progress;
+        });
+      }
     }
   }
 
