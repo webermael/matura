@@ -28,7 +28,7 @@ class Car {
   float accel = 20.f;
   float decel = 40.f;
   float coast_decel = 10.f;
-  Path path;
+  std::shared_ptr<const Path> path;
   int node_index;
   int way_index;
   int lane_index = 0;
@@ -36,14 +36,14 @@ class Car {
   sf::Vector2<double> direction;
   bool active = true;
   sf::Color color;
-  Car(Path path, Settings settings) : path(path) {
-    pos = path.ways[0]->nodes[0]->pos;
-    target_pos = path.ways[0]->nodes[1]->pos;
-    target_speed = path.ways[0]->speed;
+  Car(std::shared_ptr<const Path> path, Settings settings) : path(path) {
+    pos = path->ways[0]->nodes[0]->pos;
+    target_pos = path->ways[0]->nodes[1]->pos;
+    target_speed = path->ways[0]->speed;
 
     node_index = 1;
     way_index = 0;
-    add_to_way(path.ways[way_index]);
+    add_to_way(path->ways[way_index]);
     direction = get_direction(pos, target_pos, get_dist(pos, target_pos));
 
     // set start speed
@@ -180,14 +180,14 @@ class Car {
     int new_lane_index = 0;
     int min_car_count = INT_MAX;
 
-    if (way < path.turns.size()) {
-      for (size_t i = 0; i < path.ways[way]->turn_lanes.size(); i++) {
-        const auto& lane = path.ways[way]->turn_lanes[i];
+    if (way < path->turns.size()) {
+      for (size_t i = 0; i < path->ways[way]->turn_lanes.size(); i++) {
+        const auto& lane = path->ways[way]->turn_lanes[i];
         // take unrestricted or matching turns into account
         // only if valid
         if (lane.empty() || std::find(lane.begin(), lane.end(),
-                                      path.turns[way]) != lane.end()) {
-          size_t car_count = path.ways[way]->cars[i].size();
+                                      path->turns[way]) != lane.end()) {
+          size_t car_count = path->ways[way]->cars[i].size();
           if (car_count <= min_car_count) {  // prefer outer lanes on tie
             min_car_count = static_cast<int>(car_count);
             new_lane_index = static_cast<int>(i);
@@ -196,8 +196,8 @@ class Car {
       }
     }
     if (min_car_count == INT_MAX) {
-      for (size_t i = 0; i < path.ways[way]->cars.size(); i++) {
-        size_t car_count = path.ways[way]->cars[i].size();
+      for (size_t i = 0; i < path->ways[way]->cars.size(); i++) {
+        size_t car_count = path->ways[way]->cars[i].size();
         if (car_count <= min_car_count) {
           min_car_count = static_cast<int>(car_count);
           new_lane_index = static_cast<int>(i);
@@ -216,13 +216,13 @@ class Car {
     output.new_lane = lane_index;
     output.new_node += 1;
 
-    if (output.new_node >= path.ways[output.new_way]->nodes.size() &&
-        (output.new_way + 1 < path.ways.size())) {
+    if (output.new_node >= path->ways[output.new_way]->nodes.size() &&
+        (output.new_way + 1 < path->ways.size())) {
       output.new_way += 1;
       output.new_node = 1;
       output.new_lane = get_lane_index(output.new_way);
-    } else if (output.new_node >= path.ways[output.new_way]->nodes.size() &&
-               (way_index + 1 >= path.ways.size())) {
+    } else if (output.new_node >= path->ways[output.new_way]->nodes.size() &&
+               (way_index + 1 >= path->ways.size())) {
       output.new_node -= 1;
       output.end_of_path = true;
     }
@@ -262,20 +262,20 @@ class Car {
 
         if (nt.new_way != way_index) {
           // change way that this car belongs to
-          remove_from_way(path.ways[way_index]);
+          remove_from_way(path->ways[way_index]);
           way_index = nt.new_way;
           lane_index = nt.new_lane;
-          add_to_way(path.ways[way_index]);
+          add_to_way(path->ways[way_index]);
           way_progress = 0;
         }
 
         if (!nt.end_of_path) {
-          target_pos = path.ways[way_index]->nodes[node_index]->pos;
-          target_speed = path.ways[way_index]->speed;
+          target_pos = path->ways[way_index]->nodes[node_index]->pos;
+          target_speed = path->ways[way_index]->speed;
 
         } else {
           active = false;
-          remove_from_way(path.ways[way_index]);
+          remove_from_way(path->ways[way_index]);
         }
         budget -= distance;
 
@@ -302,7 +302,7 @@ class Car {
     // loop until lookahead distance has passed
 
     while (lookahead > 0 && !end && lookahead < max_dist) {
-      sf::Vector2<double> new_node = path.ways[way]->nodes[index]->pos;
+      sf::Vector2<double> new_node = path->ways[way]->nodes[index]->pos;
 
       curvature += acosf(std::clamp<float>(
                        get_dot_product(old_node, node, new_node), -1.f, 1.f)) *
@@ -324,7 +324,7 @@ class Car {
     Car* next_car = nullptr;
 
     // Check current way
-    for (auto car_in_way : path.ways[way_index]->cars[lane_index]) {
+    for (auto car_in_way : path->ways[way_index]->cars[lane_index]) {
       if (car_in_way == this) continue;
       if (car_in_way->way_progress > this->way_progress) {
         next_car = car_in_way;
@@ -334,8 +334,8 @@ class Car {
 
     // Check forward ways if needed
     if (!next_car) {
-      for (size_t i = way_index + 1; i < path.ways.size(); ++i) {
-        Way* fwd_way = path.ways[i];
+      for (size_t i = way_index + 1; i < path->ways.size(); ++i) {
+        Way* fwd_way = path->ways[i];
 
         int index = get_lane_index(i);
 

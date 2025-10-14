@@ -26,7 +26,7 @@ class Simulation {
   std::vector<Node*> start_nodes;
   std::vector<Node*> end_nodes;
   std::vector<std::unique_ptr<Car>> cars = {};
-  std::vector<Path> paths;
+  std::vector<std::shared_ptr<Path>> paths;
   std::unique_ptr<Plot> plot;        // delayed construction
   std::unique_ptr<Display> display;  // delayed construction
   bool paused = false;
@@ -159,26 +159,27 @@ class Simulation {
     } else {
       // if new path is found, add to list
       auto& new_path = pathfinder.explored_nodes[pathfinder.end].path;
-      bool already_present =
-          std::any_of(paths.begin(), paths.end(),
-                      [&](const Path& p) { return p.ways == new_path; });
+      bool already_present = std::any_of(
+          paths.begin(), paths.end(),
+          [&](const std::shared_ptr<Path>& p) { return p->ways == new_path; });
       // found the endpoint
       if (pathfinder.explored_nodes.count(pathfinder.end) && !already_present &&
           (pathfinder.start != pathfinder.end) &&
           !pathfinder.explored_nodes[pathfinder.end]
                .path.empty()) {  // different start/end node
-        paths.push_back({new_path, pathfinder.path_turns});
+        paths.push_back(
+            std::make_shared<Path>(Path{new_path, pathfinder.path_turns}));
       }
       // start next search
       reset_pathfinder();
     }
   }
 
-  size_t weighted_choice(const std::vector<Path>& paths) {
+  size_t weighted_choice(std::vector<std::shared_ptr<Path>>& paths) {
     float total = 0.f;
     for (size_t i = 0; i < paths.size(); i++) {
-      total += paths[i].ways[0]->nodes[0]->spawn_weight *
-               paths[i].ways.back()->nodes.back()->spawn_weight;
+      total += paths[i]->ways[0]->nodes[0]->spawn_weight *
+               paths[i]->ways.back()->nodes.back()->spawn_weight;
     }
     // Random number between 0 and total
     static std::random_device rd;
@@ -189,8 +190,8 @@ class Simulation {
     // Pick based on cumulative weight
     float cumulative = 0.f;
     for (size_t i = 0; i < paths.size(); ++i) {
-      cumulative += paths[i].ways[0]->nodes[0]->spawn_weight *
-                    paths[i].ways.back()->nodes.back()->spawn_weight;
+      cumulative += paths[i]->ways[0]->nodes[0]->spawn_weight *
+                    paths[i]->ways.back()->nodes.back()->spawn_weight;
       if (value <= cumulative) {
         return i;
       }
@@ -203,14 +204,14 @@ class Simulation {
   void spawn_car(InputState input) {
     if (car_spawning) {
       car_timer -= input.dt;
+    } else {
+      car_timer = 0.f;
     }
-    int spawned_so_far = 0;
-    while (car_timer < 0 && spawned_so_far <= 7) {  // prevent long loops
+    if (car_timer < 0.f) {
       car_timer += settings.sim.car_spawn_time;
-
-      if (paths.size() > 0 && cars.size() < settings.sim.car_cap) {
+      if (!paths.empty() && cars.size() < settings.sim.car_cap) {
         // if paths are available, choose a random one
-        Path path = paths[weighted_choice(paths)];
+        std::shared_ptr<Path> path = paths[weighted_choice(paths)];
         cars.emplace_back(std::make_unique<Car>(path, settings));
       }
     }
