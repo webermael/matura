@@ -16,7 +16,7 @@ struct new_target {
 
 struct Path {
   std::vector<Way*> ways;
-  std::vector<std::string> turns;  // same length as ways - 1
+  std::vector<Turn> turns;  // same length as ways - 1
 };
 
 class Car {
