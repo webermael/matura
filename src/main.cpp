@@ -61,18 +61,17 @@ int main() {
 
     switch (currentwindow) {
       case START: {
+        // Quit or Load file
         StartButton output = start_window();
         if (output.pick_file) {
           currentwindow = FROM_FILE;
-        } else if (output.load_city) {
-          currentwindow = ENTER_CITY;
         } else if (output.quit) {
           window.close();
         }
         break;
       }
       case FROM_FILE: {
-        // Render file picker UI (non-blocking!)
+        // Load File (running from Start Menu)
         FilePickerFeedback output = file_picker();
         if (!output.file_path_name.empty()) {
           sim =
@@ -80,27 +79,6 @@ int main() {
           currentwindow = SIMULATION;
         } else if (output.canceled) {
           currentwindow = START;
-        }
-        break;
-      }
-      case ENTER_CITY: {
-        EnterCity output = enter_city_name();
-        if (output.back) {
-          currentwindow = START;
-        } else if (!output.city.empty() && !output.country.empty()) {
-          cityStr = output.city;
-          countryStr = output.country;
-          // Build filename
-          generated_file = cityStr + "_" + countryStr + ".json";
-          std::cout << output.city << " " << output.country;
-          currentwindow = GENERATING_JSON;
-        }
-        break;
-      }
-      case GENERATING_JSON: {
-        bool done = generate_json(cityStr, countryStr, generated_file);
-        if (done) {
-          currentwindow = FROM_FILE;
         }
         break;
       }
@@ -110,17 +88,22 @@ int main() {
                                input, currentwindow);
           sim->update(input);
           sim->draw(window, input);
+        } else {
+          currentwindow = START;
         }
         break;
       }
       case NEW_FILE: {
+        // Load File (running from Simulation)
         FilePickerFeedback output = file_picker();
 
         if (!output.file_path_name.empty()) {
+          // if a file, create new simulation
           sim =
               std::make_unique<Simulation>(output.file_path_name, screen_size);
           currentwindow = SIMULATION;
         } else if (output.canceled) {
+          // otherwise return to existing one
           currentwindow = SIMULATION;
         }
 

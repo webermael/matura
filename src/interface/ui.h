@@ -3,38 +3,21 @@
 #include "../simulation/node.h"
 #include "../simulation/simulation.h"
 #include "../utils/settings.h"
-
-enum CurrentWindow {
-  START,
-  FROM_FILE,
-  ENTER_CITY,
-  GENERATING_JSON,
-  NEW_FILE,
-  SIMULATION,
-  EXPORT
-};
-
+// Window statemachine, used to run correct window
+enum CurrentWindow { START, FROM_FILE, NEW_FILE, SIMULATION, EXPORT };
+// Outputs of file picking
 struct FilePickerFeedback {
   std::string file_path = "";
   std::string file_path_name = "";
   bool canceled = false;
 };
-
+// outputs from the Main Menu
 struct StartButton {
   bool pick_file = false;
-  bool load_city = false;
   bool quit = false;
 };
 
-struct EnterCity {
-  std::string city;
-  std::string country;
-  bool back = false;
-};
-
-static char city_input[64] = "";
-static char country_input[64] = "";
-
+// Load File and Quit buttons
 StartButton start_window() {
   StartButton output;
 
@@ -44,7 +27,7 @@ StartButton start_window() {
   ImGui::SetNextWindowPos(ImVec2((displaySize.x - windowSize.x) * 0.5f,
                                  (displaySize.y - windowSize.y) * 0.5f));
   ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
-  ImGui::Begin("Traffic Simulator", nullptr,
+  ImGui::Begin("Traffix", nullptr,
                ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
   float buttonWidth = 200;
@@ -53,11 +36,6 @@ StartButton start_window() {
   ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);  // center button
   if (ImGui::Button("Load From File", ImVec2(buttonWidth, 50))) {
     output.pick_file = true;
-  }
-  // Load City
-  ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
-  if (ImGui::Button("Load A City", ImVec2(buttonWidth, 50))) {
-    output.load_city = true;
   }
   // Quit button
   ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
@@ -69,71 +47,7 @@ StartButton start_window() {
   return output;
 }
 
-EnterCity enter_city_name() {
-  EnterCity output;
-  ImVec2 windowSize = ImGui::GetWindowSize();
-  ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-  ImGui::SetNextWindowPos(ImVec2((displaySize.x - windowSize.x) * 0.5f,
-                                 (displaySize.y - windowSize.y) * 0.5f));
-  ImGui::SetNextWindowSize(ImVec2(400, 200));
-  ImGui::Begin("Enter City and Country", nullptr,
-               ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
-  ImGui::InputText("City", city_input, sizeof(city_input));
-  ImGui::InputText("Country", country_input, sizeof(country_input));
-
-  if (ImGui::Button("Submit")) {
-    output.city = std::string(city_input);
-    output.country = std::string(country_input);
-  }
-  ImGui::SameLine();
-  if (ImGui::Button("Back")) {
-    output.back = true;
-  }
-
-  ImGui::End();
-  return output;
-}
-
-bool generate_json(const std::string& cityStr, const std::string& countryStr,
-                   const std::string& path) {
-  static std::atomic<bool> python_running(false);
-  static bool done = false;
-
-  if (!python_running && !done) {
-    python_running = true;
-    std::thread([cityStr, countryStr, path]() {
-      std::string cmd = "python osm_parser.py \"" + cityStr + "\" \"" +
-                        countryStr + "\" \"" + path + "\"";
-      std::cout << "Running: " << cmd << std::endl;
-      int result = std::system(cmd.c_str());
-      if (result != 0) {
-        std::cerr << "Python script failed!" << std::endl;
-      }
-      python_running = false;
-      done = true;
-    }).detach();
-  }
-
-  ImGui::Begin("Generating JSON...");
-  ImGui::Text("Please wait while generating JSON for %s, %s", cityStr.c_str(),
-              countryStr.c_str());
-  if (python_running) {
-    ImGui::Text("Status: Working...");
-  } else if (done) {
-    ImGui::Text("Status: Done!");
-  }
-  ImGui::End();
-
-  // Return true when generation is finished
-  if (done && !python_running) {
-    done = false;  // reset for next time
-    return true;
-  }
-  return false;
-}
-
-// It's own window loop, until a filepath was chosen
+// Runs until a file is chosen or canceled, if canceled returns to previous menu
 FilePickerFeedback file_picker() {
   FilePickerFeedback output;
   ImGuiFileDialog::Instance()->OpenDialog("ChooseJSONDlgKey",
@@ -165,7 +79,6 @@ void pathfinding(Settings& settings, Simulation& sim) {
 
   ImGui::Text("Path count: %zu", sim.paths.size());
 }
-
 void highlight_selector(Settings& settings) {
   const char* highlight_names[] = {"Acceleration", "Speed", "Off"};
   int current = static_cast<int>(settings.visual.highlight_mode);
@@ -175,7 +88,6 @@ void highlight_selector(Settings& settings) {
     settings.visual.highlight_mode = static_cast<Highlight>(current);
   }
 }
-
 void ColorEditor(const char* label, sf::Color& color, InputState& input,
                  bool camera_changed = true) {
   // ImGui uses floats [0,1] for color components
@@ -189,7 +101,7 @@ void ColorEditor(const char* label, sf::Color& color, InputState& input,
   }
 }
 
-// Runs during the simulation
+// Runs during the simulation, allows changes in Simulation variables
 void create_settings_menu(Settings& settings, sf::RenderWindow& window,
                           sf::Vector2u interface_size, Simulation& sim,
                           InputState& input, CurrentWindow& currentwindow) {
@@ -321,6 +233,7 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
     if (ImGui::Button("Main Menu", ImVec2(100, 25))) {
       currentwindow = START;
     }
+    ImGui::SameLine();
     if (ImGui::Button("Load New File", ImVec2(100, 25))) {
       currentwindow = NEW_FILE;
     }
