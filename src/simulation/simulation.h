@@ -94,19 +94,48 @@ class Simulation {
   }
 
   void pathfinder_node_setup() {
+    start_nodes.clear();
+    end_nodes.clear();
     // create start and end node vectors
     for (size_t i = 0; i < nodes.size(); i++) {
+      // continous roads
       if (nodes[i].street_count == 2 && nodes[i].ways_out.size() == 1 &&
           (nodes[i].ways_out[0]->oneway && nodes[i].ways_in.size() == 0 ||
            !nodes[i].ways_out[0]->oneway && nodes[i].ways_in.size() == 1)) {
+        nodes[i].spawn_weight = nodes[i].ways_out[0]->speed;
         start_nodes.push_back(nodes[i].ways_out[0]->nodes.front());
       }
+      // dead ends separately
+      if (nodes[i].street_count == 1 && nodes[i].ways_out.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
+        start_nodes.push_back(nodes[i].ways_out[0]->nodes.front());
+      }
+      // same for ways out
       if (nodes[i].street_count == 2 && nodes[i].ways_in.size() == 1 &&
           (nodes[i].ways_in[0]->oneway && nodes[i].ways_out.size() == 0 ||
            !nodes[i].ways_in[0]->oneway && nodes[i].ways_out.size() == 1)) {
+        nodes[i].spawn_weight = nodes[i].ways_in[0]->speed;
+        end_nodes.push_back(nodes[i].ways_in[0]->nodes.back());
+      }
+
+      if (nodes[i].street_count == 1 && nodes[i].ways_in.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
         end_nodes.push_back(nodes[i].ways_in[0]->nodes.back());
       }
     }
+  }
+
+  void set_dead_end_weights() {
+    // reset dead end weights to new value
+    for (size_t i = 0; i < start_nodes.size(); i++) {
+      if (nodes[i].street_count == 1 && nodes[i].ways_out.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
+      }
+    }
+    for (size_t i = 0; i < end_nodes.size(); i++)
+      if (nodes[i].street_count == 1 && nodes[i].ways_in.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
+      }
   }
 
   void change_pathfinder_mode(PathFinding new_mode) {
@@ -145,17 +174,43 @@ class Simulation {
     }
   }
 
+  size_t weighted_choice(const std::vector<Path>& paths) {
+    float total = 0.f;
+    for (size_t i = 0; i < paths.size(); i++) {
+      total += paths[i].ways[0]->nodes[0]->spawn_weight *
+               paths[i].ways.back()->nodes.back()->spawn_weight;
+    }
+    // Random number between 0 and total
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(0.0f, total);
+    float value = dist(gen);
+
+    // Pick based on cumulative weight
+    float cumulative = 0.f;
+    for (size_t i = 0; i < paths.size(); ++i) {
+      cumulative += paths[i].ways[0]->nodes[0]->spawn_weight *
+                    paths[i].ways.back()->nodes.back()->spawn_weight;
+      if (value <= cumulative) {
+        return i;
+      }
+    }
+
+    // Fallback (in case of floating-point rounding)
+    return paths.size() - 1;
+  }
+
   void spawn_car(InputState input) {
     if (car_spawning) {
       car_timer -= input.dt;
     }
     int spawned_so_far = 0;
-    while (car_timer < 0 && spawned_so_far <= 7) { // prevent long loops
+    while (car_timer < 0 && spawned_so_far <= 7) {  // prevent long loops
       car_timer += settings.sim.car_spawn_time;
 
       if (paths.size() > 0 && cars.size() < settings.sim.car_cap) {
         // if paths are available, choose a random one
-        Path path = paths[rand() % paths.size()];
+        Path path = paths[weighted_choice(paths)];
         cars.emplace_back(std::make_unique<Car>(path, settings));
       }
     }
