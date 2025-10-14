@@ -232,15 +232,15 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
 
   // FILE STUFF
   if (ImGui::CollapsingHeader("Menu")) {
-    if (ImGui::Button("Main Menu", ImVec2(100, 25))) {
+    if (ImGui::Button("Main Menu", ImVec2(120, 25))) {
       currentwindow = START;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Load New File", ImVec2(100, 25))) {
+    if (ImGui::Button("Load New File", ImVec2(120, 25))) {
       currentwindow = NEW_FILE;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Quit", ImVec2(100, 25))) {
+    if (ImGui::Button("Quit", ImVec2(120, 25))) {
       window.close();
     }
   }
