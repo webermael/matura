@@ -79,6 +79,20 @@ void pathfinding(Settings& settings, Simulation& sim) {
   settings.sim.pathfinder_step_count =
       std::max(0, settings.sim.pathfinder_step_count);
 
+  if (ImGui::InputInt("Dead End Weight", &settings.sim.dead_end_weight, 1, 5)) {
+    settings.sim.dead_end_weight = std::max(0, settings.sim.dead_end_weight);
+    sim.set_dead_end_weights();
+  };
+  if (ImGui::IsItemHovered()) {
+    ImGui::BeginTooltip();
+    ImGui::Text(
+        "Determines the likelihood of dead-end roads being used by cars.");
+    ImGui::Text(
+        "Default value is the road's speed if it continues beyond the "
+        "boundary.");
+    ImGui::EndTooltip();
+  }
+
   ImGui::Text("Path count: %zu", sim.paths.size());
 }
 void highlight_selector(Settings& settings) {
