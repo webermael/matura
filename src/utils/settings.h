@@ -21,7 +21,7 @@ struct SimSettings {
   float car_spawn_time = 0.5f;
   int car_cap = 2000;
   PathFinding pathfinding = ASTAR;
-  int pathfinder_step_count = 10;
+  int pathfinder_step_count = 200;
 };
 
 struct VisualSettings {

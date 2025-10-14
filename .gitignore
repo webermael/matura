@@ -3,6 +3,7 @@ build
 out
 compile_commands.json
 cache
+imgui.ini
 .cache
 .idea
 .vs

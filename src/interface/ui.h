@@ -3,7 +3,69 @@
 #include "../simulation/node.h"
 #include "../simulation/simulation.h"
 #include "../utils/settings.h"
+// Window statemachine, used to run correct window
+enum CurrentWindow { START, FROM_FILE, NEW_FILE, SIMULATION, EXPORT };
+// Outputs of file picking
+struct FilePickerFeedback {
+  std::string file_path = "";
+  std::string file_path_name = "";
+  bool canceled = false;
+};
+// outputs from the Main Menu
+struct StartButton {
+  bool pick_file = false;
+  bool quit = false;
+};
 
+// Load File and Quit buttons
+StartButton start_window() {
+  StartButton output;
+
+  ImVec2 windowSize = ImGui::GetWindowSize();
+  ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+
+  ImGui::SetNextWindowPos(ImVec2((displaySize.x - windowSize.x) * 0.5f,
+                                 (displaySize.y - windowSize.y) * 0.5f));
+  ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
+  ImGui::Begin("Traffix", nullptr,
+               ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
+  float buttonWidth = 200;
+
+  // Load button
+  ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);  // center button
+  if (ImGui::Button("Load From File", ImVec2(buttonWidth, 50))) {
+    output.pick_file = true;
+  }
+  // Quit button
+  ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+  if (ImGui::Button("Quit", ImVec2(buttonWidth, 50))) {
+    output.quit = true;
+  }
+
+  ImGui::End();
+  return output;
+}
+
+// Runs until a file is chosen or canceled, if canceled returns to previous menu
+FilePickerFeedback file_picker() {
+  FilePickerFeedback output;
+  ImGuiFileDialog::Instance()->OpenDialog("ChooseJSONDlgKey",
+                                          "Choose JSON File", ".json", ".");
+
+  if (ImGuiFileDialog::Instance()->Display("ChooseJSONDlgKey")) {
+    if (ImGuiFileDialog::Instance()->IsOk()) {
+      output.file_path_name = ImGuiFileDialog::Instance()->GetFilePathName();
+      output.file_path = ImGuiFileDialog::Instance()->GetCurrentPath();
+    } else {
+      output.canceled = true;
+    }
+    ImGuiFileDialog::Instance()->Close();  // close once an action was taken
+  }
+  return output;
+}
+
+// helper functions
 void pathfinding(Settings& settings, Simulation& sim) {
   const char* pathfinding_names[] = {"A*", "Dijkstra"};
   int current = static_cast<int>(settings.sim.pathfinding);
@@ -12,12 +74,13 @@ void pathfinding(Settings& settings, Simulation& sim) {
                    IM_ARRAYSIZE(pathfinding_names))) {
     sim.change_pathfinder_mode(static_cast<PathFinding>(current));
   }
-  ImGui::SliderInt("Pathfinder Steps/Frame",
-                   &settings.sim.pathfinder_step_count, 0, 50);
+  ImGui::InputInt("Pathfinder Steps/Frame", &settings.sim.pathfinder_step_count,
+                  10, 50);
+  settings.sim.pathfinder_step_count =
+      std::max(0, settings.sim.pathfinder_step_count);
 
   ImGui::Text("Path count: %zu", sim.paths.size());
 }
-
 void highlight_selector(Settings& settings) {
   const char* highlight_names[] = {"Acceleration", "Speed", "Off"};
   int current = static_cast<int>(settings.visual.highlight_mode);
@@ -27,7 +90,6 @@ void highlight_selector(Settings& settings) {
     settings.visual.highlight_mode = static_cast<Highlight>(current);
   }
 }
-
 void ColorEditor(const char* label, sf::Color& color, InputState& input,
                  bool camera_changed = true) {
   // ImGui uses floats [0,1] for color components
@@ -41,9 +103,10 @@ void ColorEditor(const char* label, sf::Color& color, InputState& input,
   }
 }
 
+// Runs during the simulation, allows changes in Simulation variables
 void create_settings_menu(Settings& settings, sf::RenderWindow& window,
                           sf::Vector2u interface_size, Simulation& sim,
-                          InputState& input) {
+                          InputState& input, CurrentWindow& currentwindow) {
   ImGui::SetNextWindowPos(ImVec2(window.getSize().x - interface_size.x, 0));
   ImGui::SetNextWindowSize(ImVec2(interface_size));
   ImGui::Begin("Settings", nullptr,
@@ -167,5 +230,19 @@ void create_settings_menu(Settings& settings, sf::RenderWindow& window,
     }
   }
 
+  // FILE STUFF
+  if (ImGui::CollapsingHeader("Menu")) {
+    if (ImGui::Button("Main Menu", ImVec2(120, 25))) {
+      currentwindow = START;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Load New File", ImVec2(120, 25))) {
+      currentwindow = NEW_FILE;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Quit", ImVec2(120, 25))) {
+      window.close();
+    }
+  }
   ImGui::End();
 }

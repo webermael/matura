@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "ImGuiFileDialog.h"
 #include "interface/display.h"
 #include "interface/plot.h"
 #include "interface/ui.h"
@@ -30,6 +31,7 @@ int main() {
 
   // for input handling in main loop
   InputState input;
+  CurrentWindow currentwindow = START;
   // create main display window
   auto window = sf::RenderWindow(sf::VideoMode(1800, 900), "Matura");
   sf::Vector2u interface_size = {400u, window.getSize().y};
@@ -43,23 +45,72 @@ int main() {
     return -1;
   }
 
-  // Create Simulation with json data
-  Simulation sim("./src/Aarau.json", screen_size);
+  std::string cityStr, countryStr;
+  std::string
+      generated_file;  // the path to the JSON the Python script will make
+
+  std::unique_ptr<Simulation> sim;
 
   sf::Clock clock;
   // --- GAME LOOP ---
   while (window.isOpen()) {
     // - Events -
     handle_events(window, input);
-
-    // - Updating -
     ImGui::SFML::Update(window, sf::seconds(input.dt));
-    create_settings_menu(sim.settings, window, interface_size, sim, input);
-    sim.update(input);
+    window.clear(sf::Color::Black);
 
-    // - Drawing -
-    window.clear(sf::Color::White);
-    sim.draw(window, input);
+    switch (currentwindow) {
+      case START: {
+        // Quit or Load file
+        StartButton output = start_window();
+        if (output.pick_file) {
+          currentwindow = FROM_FILE;
+        } else if (output.quit) {
+          window.close();
+        }
+        break;
+      }
+      case FROM_FILE: {
+        // Load File (running from Start Menu)
+        FilePickerFeedback output = file_picker();
+        if (!output.file_path_name.empty()) {
+          sim =
+              std::make_unique<Simulation>(output.file_path_name, screen_size);
+          currentwindow = SIMULATION;
+        } else if (output.canceled) {
+          currentwindow = START;
+        }
+        break;
+      }
+      case SIMULATION: {
+        if (sim) {
+          create_settings_menu(sim->settings, window, interface_size, *sim,
+                               input, currentwindow);
+          sim->update(input);
+          sim->draw(window, input);
+        } else {
+          currentwindow = START;
+        }
+        break;
+      }
+      case NEW_FILE: {
+        // Load File (running from Simulation)
+        FilePickerFeedback output = file_picker();
+
+        if (!output.file_path_name.empty()) {
+          // if a file, create new simulation
+          sim =
+              std::make_unique<Simulation>(output.file_path_name, screen_size);
+          currentwindow = SIMULATION;
+        } else if (output.canceled) {
+          // otherwise return to existing one
+          currentwindow = SIMULATION;
+        }
+
+        break;
+      }
+    }
+
     ImGui::SFML::Render(window);
 
     // - Finish Frame -
@@ -67,4 +118,4 @@ int main() {
     input.dt = clock.restart().asSeconds();
   }
   ImGui::SFML::Shutdown();
-};
+}
