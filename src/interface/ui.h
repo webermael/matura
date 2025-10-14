@@ -74,8 +74,10 @@ void pathfinding(Settings& settings, Simulation& sim) {
                    IM_ARRAYSIZE(pathfinding_names))) {
     sim.change_pathfinder_mode(static_cast<PathFinding>(current));
   }
-  ImGui::SliderInt("Pathfinder Steps/Frame",
-                   &settings.sim.pathfinder_step_count, 0, 50);
+  ImGui::InputInt("Pathfinder Steps/Frame", &settings.sim.pathfinder_step_count,
+                  10, 50);
+  settings.sim.pathfinder_step_count =
+      std::max(0, settings.sim.pathfinder_step_count);
 
   ImGui::Text("Path count: %zu", sim.paths.size());
 }
