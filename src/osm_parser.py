@@ -4,8 +4,6 @@ import re
 import math
 import pyproj
 import sys
-import os
-
 
 def parse_maxspeed(speed_tag):
     # remove any letters and replace "urban", "walk", etc. with speeds
@@ -84,141 +82,139 @@ if __name__ == "__main__":
         print("Usage: python osm_parser.py <City> <Country> <OutputPath>")
         sys.exit(1)
 
+
+
     city = sys.argv[1]
     country = sys.argv[2]
     output_path = sys.argv[3]
-    print(output_path)
-    print(city)
-    print(country)
 
 
-city = "Aarau, Switzerland"
-ox.settings.useful_tags_way += ["lanes",
-    "lanes:forward", "turn:lanes:forward",
-    "lanes:backward", "turn:lanes:backward"
-]
+    ox.settings.useful_tags_way += ["lanes",
+        "lanes:forward", "turn:lanes:forward",
+        "lanes:backward", "turn:lanes:backward"
+    ]
 
-G = ox.graph_from_place(city, network_type="drive", simplify=False)
-proj = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
-print("Loaded Graph")
+    G = ox.graph_from_place(city + ", " + country, network_type="drive", simplify=False)
+    proj = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+    print("Loaded Graph")
 
-# all coordinates
-lats = [data["y"] for _, data in G.nodes(data=True)]
-lons = [data["x"] for _, data in G.nodes(data=True)]
-# get boundaries
-north, south = max(lats), min(lats)
-east, west = max(lons), min(lons)
-# transform them
-x_min, y_min = proj.transform(west, south)
-x_max, y_max = proj.transform(east, north)
-# save them
-export = {}
-export["bounds"] = {
-    "north": y_max,
-    "east": x_max,
-    "south": y_min,
-    "west": x_min
-}
-# get node pos and street count
-export["nodes"] = {}
-for id, data in G.nodes(data=True):
-    x, y = proj.transform(data["x"], data["y"])
-    export["nodes"][str(id)] = {
-        "pos": (x, y),
-        "street_count": data["street_count"]
-        }
-print("Finished Nodes")
-
-export["ways"] = {}
-
-for start, end, data in G.edges(data=True):
-    # set id based on direction
-    if not data["reversed"]:
-        osmid = str(data["osmid"])
-    else:
-        osmid = str(data["osmid"]) + "r"
-    # save edge data
-    turn_lanes = parse_turn_lanes(data.get("turn:lanes:forward", None)) if not data["reversed"] else parse_turn_lanes(data.get("turn:lanes:backward", None))
-    edge = {
-        "nodes": [str(start), str(end)],
-        "speed": parse_maxspeed(data.get("maxspeed", "50")),
-        "length": math.hypot(export["nodes"][str(start)]["pos"][0] - export["nodes"][str(end)]["pos"][0],
-                             export["nodes"][str(start)]["pos"][1] - export["nodes"][str(end)]["pos"][1]),
-        "reversed": data["reversed"],
-        "oneway": data.get("oneway", False),
-        "lanes": max(len(turn_lanes), get_lanes_forward(data, "lanes:forward", "lanes:backward") if not data["reversed"]
-                      else get_lanes_forward(data, "lanes:backward", "lanes:forward")),
-        "turn_lanes": turn_lanes,
-        "turn_restrictions": parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:forward", None))) if not data["reversed"] 
-        else parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:backward", None)))
-        
+    # all coordinates
+    lats = [data["y"] for _, data in G.nodes(data=True)]
+    lons = [data["x"] for _, data in G.nodes(data=True)]
+    # get boundaries
+    north, south = max(lats), min(lats)
+    east, west = max(lons), min(lons)
+    # transform them
+    x_min, y_min = proj.transform(west, south)
+    x_max, y_max = proj.transform(east, north)
+    # save them
+    export = {}
+    export["bounds"] = {
+        "north": y_max,
+        "east": x_max,
+        "south": y_min,
+        "west": x_min
     }
-
-    # add id with first edges data
-    if osmid not in export["ways"]: 
-        
-            export["ways"][osmid] = {
-                "id": osmid,
-                "speed": edge["speed"],
-                "length": [edge["length"]],
-                "reversed": edge["reversed"],
-                "oneway": edge["oneway"],
-                "lanes": edge["lanes"],
-                "turn_lanes": edge["turn_lanes"],
-                "turn_restrictions": edge["turn_restrictions"],
-                "nodes": [[edge["nodes"][0], edge["nodes"][1]]],
-                "edges": []
+    # get node pos and street count
+    export["nodes"] = {}
+    for id, data in G.nodes(data=True):
+        x, y = proj.transform(data["x"], data["y"])
+        export["nodes"][str(id)] = {
+            "pos": (x, y),
+            "street_count": data["street_count"]
             }
-    else:
-        # add edge to list
-        export["ways"][osmid]["edges"].append(edge)
+    print("Finished Nodes")
 
-print("Finished Edges, Building Ways")
+    export["ways"] = {}
 
-for osmid, way_data in export["ways"].items():
-    stitched = True
-    while len(way_data["edges"]) > 0 and stitched:
-        stitched = False
-        for edge in way_data["edges"]:
-            if edge["nodes"][0] == edge["nodes"][1] or len(edge["nodes"]) < 2:
-                stitched = True
-                way_data["edges"].remove(edge)
-            # if front attaches
-            if edge["nodes"][0] == way_data["nodes"][-1][-1]:
-                # if new segment
-                if split_way(edge, 0):
-                    # add edge as (new) last segment
-                    if "1796092273" in edge["nodes"]:
-                        print("Add New Segment in back")
+    for start, end, data in G.edges(data=True):
+        # set id based on direction
+        if not data["reversed"]:
+            osmid = str(data["osmid"])
+        else:
+            osmid = str(data["osmid"]) + "r"
+        # save edge data
+        turn_lanes = parse_turn_lanes(data.get("turn:lanes:forward", None)) if not data["reversed"] else parse_turn_lanes(data.get("turn:lanes:backward", None))
+        edge = {
+            "nodes": [str(start), str(end)],
+            "speed": parse_maxspeed(data.get("maxspeed", "50")),
+            "length": math.hypot(export["nodes"][str(start)]["pos"][0] - export["nodes"][str(end)]["pos"][0],
+                                export["nodes"][str(start)]["pos"][1] - export["nodes"][str(end)]["pos"][1]),
+            "reversed": data["reversed"],
+            "oneway": data.get("oneway", False),
+            "lanes": max(len(turn_lanes), get_lanes_forward(data, "lanes:forward", "lanes:backward") if not data["reversed"]
+                        else get_lanes_forward(data, "lanes:backward", "lanes:forward")),
+            "turn_lanes": turn_lanes,
+            "turn_restrictions": parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:forward", None))) if not data["reversed"] 
+            else parse_turn_restrictions(parse_turn_lanes(data.get("turn:lanes:backward", None)))
+            
+        }
 
-                    way_data["nodes"].append([edge["nodes"][0], edge["nodes"][1]])
-                    way_data["length"].append(edge["length"])
-                else:
-                    # add end node to end segment
-                    way_data["nodes"][-1].append(edge["nodes"][1])
-                    way_data["length"][-1] += edge["length"]
-                stitched = True
-                way_data["edges"].remove(edge)
-            # end nodes attaches    
-            elif edge["nodes"][1] == way_data["nodes"][0][0]:
-                # if new segment
-                if split_way(edge, 1):
-                    # add edge as (new) first segment
-                    way_data["nodes"].insert(0, [edge["nodes"][0], edge["nodes"][1]])
-                    way_data["length"].insert(0, edge["length"])
-                else:
-                    # insert start node at start of first segment
-                    way_data["nodes"][0].insert(0, edge["nodes"][0])
-                    way_data["length"][0] += edge["length"]
+        # add id with first edges data
+        if osmid not in export["ways"]: 
+            
+                export["ways"][osmid] = {
+                    "id": osmid,
+                    "speed": edge["speed"],
+                    "length": [edge["length"]],
+                    "reversed": edge["reversed"],
+                    "oneway": edge["oneway"],
+                    "lanes": edge["lanes"],
+                    "turn_lanes": edge["turn_lanes"],
+                    "turn_restrictions": edge["turn_restrictions"],
+                    "nodes": [[edge["nodes"][0], edge["nodes"][1]]],
+                    "edges": []
+                }
+        else:
+            # add edge to list
+            export["ways"][osmid]["edges"].append(edge)
 
-                stitched = True
-                way_data["edges"].remove(edge)
+    print("Finished Edges, Building Ways")
 
-    way_data.pop("edges")
+    for osmid, way_data in export["ways"].items():
+        stitched = True
+        while len(way_data["edges"]) > 0 and stitched:
+            stitched = False
+            for edge in way_data["edges"]:
+                if edge["nodes"][0] == edge["nodes"][1] or len(edge["nodes"]) < 2:
+                    stitched = True
+                    way_data["edges"].remove(edge)
+                # if front attaches
+                if edge["nodes"][0] == way_data["nodes"][-1][-1]:
+                    # if new segment
+                    if split_way(edge, 0):
+                        # add edge as (new) last segment
+                        if "1796092273" in edge["nodes"]:
+                            print("Add New Segment in back")
 
-# output to json file
-with open("src\\Aarau.json", "w") as f:
-    json.dump(export, f, indent=2)
-    f.close()
+                        way_data["nodes"].append([edge["nodes"][0], edge["nodes"][1]])
+                        way_data["length"].append(edge["length"])
+                    else:
+                        # add end node to end segment
+                        way_data["nodes"][-1].append(edge["nodes"][1])
+                        way_data["length"][-1] += edge["length"]
+                    stitched = True
+                    way_data["edges"].remove(edge)
+                # end nodes attaches    
+                elif edge["nodes"][1] == way_data["nodes"][0][0]:
+                    # if new segment
+                    if split_way(edge, 1):
+                        # add edge as (new) first segment
+                        way_data["nodes"].insert(0, [edge["nodes"][0], edge["nodes"][1]])
+                        way_data["length"].insert(0, edge["length"])
+                    else:
+                        # insert start node at start of first segment
+                        way_data["nodes"][0].insert(0, edge["nodes"][0])
+                        way_data["length"][0] += edge["length"]
 
-print("Done.")
+                    stitched = True
+                    way_data["edges"].remove(edge)
+
+        way_data.pop("edges")
+
+    # output to json file
+    with open(output_path, "w") as f:
+        json.dump(export, f, indent=2)
+        f.close()
+
+    print("Done.")
