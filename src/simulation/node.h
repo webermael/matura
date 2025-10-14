@@ -8,6 +8,7 @@ class Way;
 class Node {
  public:
   std::string id;
+  float spawn_weight = 0.f;
   sf::Vector2<double> pos;
   int street_count;
   std::vector<Way*> ways_out;

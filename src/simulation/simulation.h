@@ -26,7 +26,7 @@ class Simulation {
   std::vector<Node*> start_nodes;
   std::vector<Node*> end_nodes;
   std::vector<std::unique_ptr<Car>> cars = {};
-  std::vector<Path> paths;
+  std::vector<std::shared_ptr<Path>> paths;
   std::unique_ptr<Plot> plot;        // delayed construction
   std::unique_ptr<Display> display;  // delayed construction
   bool paused = false;
@@ -94,26 +94,54 @@ class Simulation {
   }
 
   void pathfinder_node_setup() {
+    start_nodes.clear();
+    end_nodes.clear();
     // create start and end node vectors
     for (size_t i = 0; i < nodes.size(); i++) {
+      // continous roads
       if (nodes[i].street_count == 2 && nodes[i].ways_out.size() == 1 &&
           (nodes[i].ways_out[0]->oneway && nodes[i].ways_in.size() == 0 ||
            !nodes[i].ways_out[0]->oneway && nodes[i].ways_in.size() == 1)) {
+        nodes[i].spawn_weight = nodes[i].ways_out[0]->speed;
         start_nodes.push_back(nodes[i].ways_out[0]->nodes.front());
       }
+      // dead ends separately
+      if (nodes[i].street_count == 1 && nodes[i].ways_out.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
+        start_nodes.push_back(nodes[i].ways_out[0]->nodes.front());
+      }
+      // same for ways out
       if (nodes[i].street_count == 2 && nodes[i].ways_in.size() == 1 &&
           (nodes[i].ways_in[0]->oneway && nodes[i].ways_out.size() == 0 ||
            !nodes[i].ways_in[0]->oneway && nodes[i].ways_out.size() == 1)) {
+        nodes[i].spawn_weight = nodes[i].ways_in[0]->speed;
+        end_nodes.push_back(nodes[i].ways_in[0]->nodes.back());
+      }
+
+      if (nodes[i].street_count == 1 && nodes[i].ways_in.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
         end_nodes.push_back(nodes[i].ways_in[0]->nodes.back());
       }
     }
   }
 
+  void set_dead_end_weights() {
+    // reset dead end weights to new value
+    for (size_t i = 0; i < start_nodes.size(); i++) {
+      if (nodes[i].street_count == 1 && nodes[i].ways_out.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
+      }
+    }
+    for (size_t i = 0; i < end_nodes.size(); i++)
+      if (nodes[i].street_count == 1 && nodes[i].ways_in.size() == 1) {
+        nodes[i].spawn_weight = settings.sim.dead_end_weight;
+      }
+  }
+
   void change_pathfinder_mode(PathFinding new_mode) {
     settings.sim.pathfinding = new_mode;
     paths.clear();
-    pathfinder.reset(start_nodes[rand() % start_nodes.size()],
-                     end_nodes[rand() % end_nodes.size()], settings.sim);
+    reset_pathfinder();
   }
 
   void reset_pathfinder() {
@@ -123,26 +151,55 @@ class Simulation {
 
   void pathfinder_update() {
     // run x steps of A*
-    if (pathfinder.active) {
-      for (size_t i = 0; i < settings.sim.pathfinder_step_count; i++) {
+
+    for (size_t i = 0; i < settings.sim.pathfinder_step_count; i++) {
+      if (pathfinder.active) {
         pathfinder.step();
+      } else {
+        // if new path is found, add to list
+        auto& new_path = pathfinder.explored_nodes[pathfinder.end].path;
+        bool already_present = std::any_of(paths.begin(), paths.end(),
+                                           [&](const std::shared_ptr<Path>& p) {
+                                             return p->ways == new_path;
+                                           });
+        // found the endpoint
+        if (pathfinder.explored_nodes.count(pathfinder.end) &&
+            !already_present && (pathfinder.start != pathfinder.end) &&
+            !pathfinder.explored_nodes[pathfinder.end]
+                 .path.empty()) {  // different start/end node
+          paths.push_back(
+              std::make_shared<Path>(Path{new_path, pathfinder.path_turns}));
+        }
+        // start next search
+        reset_pathfinder();
       }
-    } else {
-      // if new path is found, add to list
-      auto& new_path = pathfinder.explored_nodes[pathfinder.end].path;
-      bool already_present =
-          std::any_of(paths.begin(), paths.end(),
-                      [&](const Path& p) { return p.ways == new_path; });
-      // found the endpoint
-      if (pathfinder.explored_nodes.count(pathfinder.end) && !already_present &&
-          (pathfinder.start != pathfinder.end) &&
-          !pathfinder.explored_nodes[pathfinder.end]
-               .path.empty()) {  // different start/end node
-        paths.push_back({new_path, pathfinder.path_turns});
-      }
-      // start next search
-      reset_pathfinder();
     }
+  }
+
+  size_t weighted_choice(std::vector<std::shared_ptr<Path>>& paths) {
+    float total = 0.f;
+    for (size_t i = 0; i < paths.size(); i++) {
+      total += paths[i]->ways[0]->nodes[0]->spawn_weight *
+               paths[i]->ways.back()->nodes.back()->spawn_weight;
+    }
+    // Random number between 0 and total
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(0.0f, total);
+    float value = dist(gen);
+
+    // Pick based on cumulative weight
+    float cumulative = 0.f;
+    for (size_t i = 0; i < paths.size(); ++i) {
+      cumulative += paths[i]->ways[0]->nodes[0]->spawn_weight *
+                    paths[i]->ways.back()->nodes.back()->spawn_weight;
+      if (value <= cumulative) {
+        return i;
+      }
+    }
+
+    // Fallback (in case of floating-point rounding)
+    return paths.size() - 1;
   }
 
   void spawn_car(InputState input) {
@@ -150,13 +207,16 @@ class Simulation {
       car_timer -= input.dt;
     }
     int spawned_so_far = 0;
-    while (car_timer < 0 && spawned_so_far <= 7) { // prevent long loops
+    while (car_timer < 0 && spawned_so_far < 50) {  // prevent long loops
       car_timer += settings.sim.car_spawn_time;
-
-      if (paths.size() > 0 && cars.size() < settings.sim.car_cap) {
+      ++spawned_so_far;
+      if (!paths.empty() && cars.size() < settings.sim.car_cap) {
         // if paths are available, choose a random one
-        Path path = paths[rand() % paths.size()];
+        std::shared_ptr<Path> path = paths[weighted_choice(paths)];
         cars.emplace_back(std::make_unique<Car>(path, settings));
+        cars.back()->update(car_timer, settings);
+      } else {
+        break;  // safety break
       }
     }
   }

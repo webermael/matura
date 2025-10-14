@@ -33210,7 +33210,7 @@
       ],
       "reversed": false,
       "oneway": true,
-      "lanes": 1,
+      "lanes": 2,
       "turn_lanes": [],
       "turn_restrictions": [],
       "nodes": [
@@ -36906,7 +36906,9 @@
       "oneway": true,
       "lanes": 1,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "left"
+      ],
       "nodes": [
         [
           "30436824",
@@ -51960,7 +51962,9 @@
       "oneway": false,
       "lanes": 1,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "through"
+      ],
       "nodes": [
         [
           "320138174",
@@ -58103,7 +58107,9 @@
       "oneway": true,
       "lanes": 1,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "right"
+      ],
       "nodes": [
         [
           "883432055",
@@ -59321,7 +59327,9 @@
       "oneway": true,
       "lanes": 1,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "through"
+      ],
       "nodes": [
         [
           "1034470857",
@@ -60717,7 +60725,9 @@
       "oneway": true,
       "lanes": 1,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "through"
+      ],
       "nodes": [
         [
           "10287833572",
@@ -61910,7 +61920,9 @@
       "oneway": true,
       "lanes": 1,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "through"
+      ],
       "nodes": [
         [
           "1789936286",

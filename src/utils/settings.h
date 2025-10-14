@@ -22,6 +22,7 @@ struct SimSettings {
   int car_cap = 2000;
   PathFinding pathfinding = ASTAR;
   int pathfinder_step_count = 200;
+  int dead_end_weight = 1;
 };
 
 struct VisualSettings {

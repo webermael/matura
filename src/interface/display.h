@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <cmath>
+#include <vector>
 
 #include "../simulation/car.h"
 #include "../simulation/node.h"
@@ -51,8 +51,8 @@ class Display {
           (1.5f * plot.scale) +                       // car width center
           (settings.road_width * plot.scale * 0.5f);  // center car on road
       float road_offset = car->lane_index * settings.road_width * plot.scale;
-      if (car->path.ways[car->way_index]->oneway) {
-        road_offset -= car->path.ways[car->way_index]->lanes *
+      if (car->path->ways[car->way_index]->oneway) {
+        road_offset -= car->path->ways[car->way_index]->lanes *
                        settings.road_width * plot.scale *
                        0.5f;  // if center move over by half the road width
       }

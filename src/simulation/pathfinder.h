@@ -24,7 +24,7 @@ class Pathfinder {
   float time_searching;
   bool active = false;
   PathFinding pathfinding_mode = ASTAR;
-  std::vector<std::string> path_turns;
+  std::vector<Turn> path_turns;
 
   void reset(Node* start_node, Node* end_node, SimSettings settings) {
     start = start_node;
@@ -57,12 +57,12 @@ class Pathfinder {
       float dp = dot_product(vector1, vector2);
 
       // Simple threshold to decide turn
-      std::string turn;
+      Turn turn;
       if (dp > 0.5f) {
-        turn = "through";
+        turn = Turn::THROUGH;
       } else {
         float cross = vector1.x * vector2.y - vector1.y * vector2.x;
-        turn = (cross > 0) ? "left" : "right";
+        turn = (cross > 0) ? Turn::LEFT_TURN : Turn::RIGHT_TURN;
       }
 
       path_turns.push_back(turn);
