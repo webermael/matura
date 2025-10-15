@@ -351,7 +351,8 @@ class Car {
       if (settings.multiply_by_speed) {
         target_gap *= std::max(10.f, speed);
       }
-      return 1 - (target_gap / (1 + get_dist(pos, next_car->pos)));
+      return std::max(
+          0.f, 1.f - (target_gap / (1.f + get_dist(pos, next_car->pos))));
     }
     return 1.f;
   }
