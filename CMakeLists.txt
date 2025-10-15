@@ -52,8 +52,12 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(json)
 
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build SFML as static libs" FORCE)
+set(SFML_USE_STATIC_STD_LIBS TRUE CACHE BOOL "Link SFML statically" FORCE)
+
 add_executable(main src/main.cpp)
 target_compile_features(main PRIVATE cxx_std_17)
+target_compile_definitions(main PRIVATE SFML_STATIC)
 target_link_libraries(main PRIVATE ImGui-SFML::ImGui-SFML)
 target_link_libraries(main PRIVATE sfml-graphics sfml-window sfml-system)
 target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json) #json
