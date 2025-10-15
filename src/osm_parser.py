@@ -184,9 +184,6 @@ if __name__ == "__main__":
                     # if new segment
                     if split_way(edge, 0):
                         # add edge as (new) last segment
-                        if "1796092273" in edge["nodes"]:
-                            print("Add New Segment in back")
-
                         way_data["nodes"].append([edge["nodes"][0], edge["nodes"][1]])
                         way_data["length"].append(edge["length"])
                     else:
