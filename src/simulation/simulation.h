@@ -205,6 +205,8 @@ class Simulation {
   void spawn_car(InputState input) {
     if (car_spawning) {
       car_timer -= input.dt;
+    } else {
+      car_timer = 0.f;
     }
     int spawned_so_far = 0;
     while (car_timer < 0 && spawned_so_far < 50) {  // prevent long loops
