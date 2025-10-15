@@ -36270,7 +36270,9 @@
       "oneway": true,
       "lanes": 2,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "through"
+      ],
       "nodes": [
         [
           "30168993",
@@ -42106,7 +42108,9 @@
       "oneway": false,
       "lanes": 1,
       "turn_lanes": [],
-      "turn_restrictions": [],
+      "turn_restrictions": [
+        "through"
+      ],
       "nodes": [
         [
           "260995553",
